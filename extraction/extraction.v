@@ -146,12 +146,19 @@ Extract Inlined Constant Fcalc_bracket.inbetween_loc => "fun _ -> assert false".
 (* Needed in Coq 8.4 to avoid problems with Function definitions. *)
 Set Extraction AccessOpaque.
 
+(* FIXME: this should go in options somewhere *)
+
+Extract Inlined Constant spark2Cminor.MaxInt =>  "Camlcoq.Z.of_sint 1000000".
+Extract Inlined Constant spark2Cminor.MinInt => "Camlcoq.Z.of_sint (-1000000)".
+
+
 (* Go! *)
 
 Cd "extraction".
 
 Separate Extraction
    Compiler.transf_c_program Compiler.transf_cminor_program
+   Compiler.transf_spark_program
    Cexec.do_initial_state Cexec.do_step Cexec.at_final_state
    Ctypes.merge_attributes Ctypes.remove_attributes Ctypes.build_composite_env
    Initializers.transl_init Initializers.constval
