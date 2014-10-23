@@ -206,6 +206,14 @@ let compile_sparkobj_file ifile ofile =
   Sections.initialize(); (* ??? *)
   let ic = open_in ifile in
   let (stbl,ast) = input_value ic in
+  (* We should register spark identifiers here, in particular function
+     names. However for the moment sireum does not make variables
+     names and function names disjoint. A variable x and a function f
+     can have the same id number. *)
+  Hashtbl.add atom_of_string "proc82" (P.of_int 82);
+  Hashtbl.add string_of_atom (P.of_int 82) "proc82";
+  Hashtbl.add atom_of_string "proc81" (P.of_int 81);
+  Hashtbl.add string_of_atom (P.of_int 81) "proc81";
   let res = Compiler.transf_spark_program stbl ast in
   match res with
   | Errors.Error msg ->
