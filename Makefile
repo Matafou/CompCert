@@ -41,11 +41,17 @@ CP=cp
 VPATH=$(DIRS) 
 GPATH=$(DIRS)
 
+#  sparkfrontend/spark/checks_comparison.v \
+#  sparkfrontend/spark/checks_generator.v \
+#  sparkfrontend/spark/checks_soundness.v \
+#  sparkfrontend/spark/checks_optimization.v \
+#  sparkfrontend/spark/checks_optimization_soundness.v \
+#  sparkfrontend/spark/well_check_flagged.v \
+#  sparkfrontend/spark/well_typed.v \
 
 SPARK=\
   sparkfrontend/spark/util.v \
   sparkfrontend/spark/more_list.v \
-  sparkfrontend/spark/checks_comparison.v \
   sparkfrontend/spark/symboltable_module.v \
   sparkfrontend/spark/environment.v \
   sparkfrontend/spark/language_basics.v \
@@ -55,15 +61,9 @@ SPARK=\
   sparkfrontend/spark/semantics.v \
   sparkfrontend/spark/semantics_flagged.v \
   sparkfrontend/spark/LibTactics.v \
-  sparkfrontend/spark/well_check_flagged.v \
-  sparkfrontend/spark/well_typed.v \
   sparkfrontend/spark/CpdtTactics.v \
   sparkfrontend/spark/checks.v \
-  sparkfrontend/spark/checks_generator.v \
-  sparkfrontend/spark/checks_soundness.v \
   sparkfrontend/spark/values.v \
-  sparkfrontend/spark/checks_optimization.v \
-  sparkfrontend/spark/checks_optimization_soundness.v \
   sparkfrontend/spark2Cminor.v \
 # wellformedness.v propertyProof.v typing.v monad.v  FrameStackGen.v  foo.v language_template.v 
 

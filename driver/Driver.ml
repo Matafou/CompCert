@@ -210,10 +210,19 @@ let compile_sparkobj_file ifile ofile =
      names. However for the moment sireum does not make variables
      names and function names disjoint. A variable x and a function f
      can have the same id number. *)
-  Hashtbl.add atom_of_string "proc82" (P.of_int 82);
-  Hashtbl.add string_of_atom (P.of_int 82) "proc82";
-  Hashtbl.add atom_of_string "proc81" (P.of_int 81);
-  Hashtbl.add string_of_atom (P.of_int 81) "proc81";
+(*   Hashtbl.add atom_of_string "proc82" (P.of_int 82); *)
+(*   Hashtbl.add string_of_atom (P.of_int 82) "proc82"; *)
+(*   Hashtbl.add atom_of_string "proc81" (P.of_int 81); *)
+(*   Hashtbl.add string_of_atom (P.of_int 81) "proc81"; *)
+  let fun_name_table = stbl.Symboltable.Symbol_Table_Module.names.Symboltable.Symbol_Table_Module.procNames in
+  List.iter
+    (fun (pnum,(nme,uri)) ->
+      let pnumpos = P.of_int (80 + Nat.to_int pnum) in
+      let pnmestr = camlstring_of_coqstring nme in
+      Printf.printf "Hashtbl.add atom_of_string %s %d" pnmestr (Nat.to_int pnum);
+      Hashtbl.add atom_of_string pnmestr pnumpos;
+      Hashtbl.add string_of_atom pnumpos pnmestr)
+  fun_name_table;
   let res = Compiler.transf_spark_program stbl ast in
   match res with
   | Errors.Error msg ->
