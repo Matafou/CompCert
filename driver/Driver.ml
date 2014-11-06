@@ -206,23 +206,22 @@ let compile_sparkobj_file ifile ofile =
   Sections.initialize(); (* ??? *)
   let ic = open_in ifile in
   let (stbl,ast) = input_value ic in
-  (* We should register spark identifiers here, in particular function
-     names. However for the moment sireum does not make variables
-     names and function names disjoint. A variable x and a function f
-     can have the same id number. *)
-(*   Hashtbl.add atom_of_string "proc82" (P.of_int 82); *)
-(*   Hashtbl.add string_of_atom (P.of_int 82) "proc82"; *)
-(*   Hashtbl.add atom_of_string "proc81" (P.of_int 81); *)
-(*   Hashtbl.add string_of_atom (P.of_int 81) "proc81"; *)
-  let fun_name_table = stbl.Symboltable.Symbol_Table_Module.names.Symboltable.Symbol_Table_Module.procNames in
-  List.iter
-    (fun (pnum,(nme,uri)) ->
-      let pnumpos = P.of_int (80 + Nat.to_int pnum) in
-      let pnmestr = camlstring_of_coqstring nme in
-      Printf.printf "Hashtbl.add atom_of_string %s %d" pnmestr (Nat.to_int pnum);
+  (* Registering names for spark id numbers. Names and ids are already
+     linked in Sireum output, we register it as is. *)
+  (* Sireum generated table for procedures *)
+  let sireum_proc_name_table =
+    stbl.Symboltable.Symbol_Table_Module.names.Symboltable.Symbol_Table_Module.procNames in
+  let sireum_var_name_table =
+    stbl.Symboltable.Symbol_Table_Module.names.Symboltable.Symbol_Table_Module.varNames in
+  let register_sireum_name (idnum,(idname,uri)) =
+    let pnumpos = P.of_int (80 + Nat.to_int idnum) in
+    let pnmestr = camlstring_of_coqstring idname in
+    (* debuging name info *)
+    (* Printf.printf "Hashtbl.add atom_of_string %s %d" pnmestr (Nat.to_int pnum); *)
       Hashtbl.add atom_of_string pnmestr pnumpos;
-      Hashtbl.add string_of_atom pnumpos pnmestr)
-  fun_name_table;
+      Hashtbl.add string_of_atom pnumpos pnmestr in
+  List.iter register_sireum_name sireum_proc_name_table;
+  List.iter register_sireum_name sireum_var_name_table;
   let res = Compiler.transf_spark_program stbl ast in
   match res with
   | Errors.Error msg ->

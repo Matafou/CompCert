@@ -290,13 +290,6 @@ let extern_atom a =
   with Not_found ->
     Printf.sprintf "$%d" (P.to_int a)
 
-(* Pierre Courtieu, to workaround the nameless format of Sireum. *)
-let extern_fun_name a =
-  try
-    Hashtbl.find string_of_atom a
-  with Not_found ->
-    Printf.sprintf "proc%d" (P.to_int a)
-
 let first_unused_ident () = !next_atom
 
 (* Strings *)

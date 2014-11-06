@@ -43,7 +43,6 @@ let rec precedence = function
 (* Naming idents. *)
 
 let ident_name id = "'" ^ Camlcoq.extern_atom id ^ "'"
-let fun_ident_name id = "'" ^ Camlcoq.extern_fun_name id ^ "'"
 
 (* Naming operators *)
 
@@ -224,7 +223,7 @@ let rec print_stmt p s =
                 print_sig sg
   | Scall(Some id, sg, e1, el) ->
       fprintf p "@[<hv 2>%s =@ %a@,(@[<hov 0>%a@])@] : @[<hov 0>%a;@]"
-                (fun_ident_name id)
+                (ident_name id)
                 print_expr e1
                 print_expr_list (true, el)
                 print_sig sg
@@ -306,7 +305,7 @@ let rec print_varlist p (vars, first) =
 
 let print_function p id f =
   fprintf p "@[<hov 4>\"%s\"(@[<hov 0>%a@])@ : @[<hov 0>%a@]@]@ "
-            (extern_fun_name id)
+            (extern_atom id)
             print_varlist (f.fn_params, true)
             print_sig f.fn_sig;
   fprintf p "@[<v 2>{@ ";
@@ -361,7 +360,7 @@ let print_globdef p (id, gd) =
 let print_program p prog =
   fprintf p "@[<v 0>";
   if extern_atom prog.prog_main <> "main" then
-    fprintf p "= \"%s\"\n" (extern_fun_name prog.prog_main);
+    fprintf p "= \"%s\"\n" (extern_atom prog.prog_main);
   List.iter (print_globdef p) prog.prog_defs;
   fprintf p "@]@."
 
