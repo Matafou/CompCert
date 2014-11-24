@@ -1,0 +1,14 @@
+-batch -load-vernac-source
+
+-R ia32 compcert.ia32
+-R lib compcert.lib
+-R common compcert.common
+-R backend compcert.backend
+-R cfrontend compcert.cfrontend
+-R driver compcert.driver
+-R flocq compcert.flocq
+-R exportclight compcert.exportclight
+-R cparser compcert.cparser
+
+-I sparkfrontend
+-I sparkfrontend/spark
