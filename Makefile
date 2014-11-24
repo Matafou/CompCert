@@ -64,6 +64,7 @@ SPARK=\
   sparkfrontend/spark/CpdtTactics.v \
   sparkfrontend/spark/checks.v \
   sparkfrontend/spark/values.v \
+  sparkfrontend/LibHypsNaming.v \
   sparkfrontend/spark2Cminor.v \
 # wellformedness.v propertyProof.v typing.v monad.v  FrameStackGen.v  foo.v language_template.v 
 
