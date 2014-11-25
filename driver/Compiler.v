@@ -81,6 +81,7 @@ Require Import Compopts.
 Require semantics.
 Require language.
 Require spark2Cminor.
+
 (** Pretty-printers (defined in Caml). *)
 Parameter print_Clight: Clight.program -> unit.
 Parameter print_Cminor: Cminor.program -> unit.
@@ -162,7 +163,7 @@ Definition transf_cminor_program (p: Cminor.program) : res Asm.program :=
   @@@ time "RTL generation" RTLgen.transl_program
   @@@ transf_rtl_program.
 
-Definition transf_spark_program (stbl:spark2Cminor.symboltable) (p: language.declaration)
+Definition transf_spark_program (stbl:symboltable.Symbol_Table_Module.symboltable) (p: language.declaration)
   : res Asm.program :=
   OK p
   @@@ time "Cminor generation" (spark2Cminor.transl_program stbl)

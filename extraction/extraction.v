@@ -148,8 +148,8 @@ Set Extraction AccessOpaque.
 
 (* FIXME: this should go in options somewhere *)
 
-Extract Inlined Constant spark2Cminor.MaxInt =>  "Camlcoq.Z.of_sint 1000000".
-Extract Inlined Constant spark2Cminor.MinInt => "Camlcoq.Z.of_sint (-1000000)".
+(* Extract Inlined Constant spark2Cminor.MaxInt =>  "Camlcoq.Z.of_sint 1000000". *)
+(* Extract Inlined Constant spark2Cminor.MinInt => "Camlcoq.Z.of_sint (-1000000)". *)
 
 
 (* Go! *)

@@ -205,14 +205,16 @@ let compile_sparkobj_file ifile ofile =
   set_dest PrintMach.destination option_dmach ".mach";
   Sections.initialize(); (* ??? *)
   let ic = open_in ifile in
-  let (stbl,ast) = input_value ic in
+  let ((stbl,ast)
+      : Symboltable.Symbol_Table_Module.symboltable * Language.declaration)
+      = input_value ic in
   (* Registering names for spark id numbers. Names and ids are already
      linked in Sireum output, we register it as is. *)
   (* Sireum generated table for procedures *)
   let sireum_proc_name_table =
-    stbl.Symboltable.Symbol_Table_Module.names.Symboltable.Symbol_Table_Module.procNames in
+    stbl.Symboltable.Symbol_Table_Module.names.Symboltable_module.procNames in
   let sireum_var_name_table =
-    stbl.Symboltable.Symbol_Table_Module.names.Symboltable.Symbol_Table_Module.varNames in
+    stbl.Symboltable.Symbol_Table_Module.names.Symboltable_module.varNames in
   let register_sireum_name (idnum,(idname,uri)) =
     let pnumpos = P.of_int (80 + Nat.to_int idnum) in
     let pnmestr = camlstring_of_coqstring idname in
