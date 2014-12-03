@@ -66,6 +66,8 @@ SPARK=\
   sparkfrontend/spark/values.v \
   sparkfrontend/LibHypsNaming.v \
   sparkfrontend/spark2Cminor.v \
+  sparkfrontend/function_utils.v
+
 # wellformedness.v propertyProof.v typing.v monad.v  FrameStackGen.v  foo.v language_template.v 
 
 
