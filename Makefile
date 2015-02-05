@@ -66,6 +66,7 @@ SPARK=\
   sparkfrontend/spark/values.v \
   sparkfrontend/LibHypsNaming.v \
   sparkfrontend/function_utils.v \
+  sparkfrontend/semantics_properties.v \
   sparkfrontend/spark2Cminor.v \
   sparkfrontend/spark2cmproofs.v
 
