@@ -56,6 +56,7 @@ SPARK=\
   sparkfrontend/spark/environment.v \
   sparkfrontend/spark/language_basics.v \
   sparkfrontend/spark/language_flagged.v \
+  sparkfrontend/spark/language_util.v \
   sparkfrontend/spark/language.v \
   sparkfrontend/spark/symboltable.v \
   sparkfrontend/spark/semantics.v \
