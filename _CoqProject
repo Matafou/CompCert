@@ -1,4 +1,4 @@
--batch -load-vernac-source
+-batch -load-vernac-source -no-native-compiler
 
 -R ia32 compcert.ia32
 -R lib compcert.lib
@@ -10,5 +10,5 @@
 -R exportclight compcert.exportclight
 -R cparser compcert.cparser
 
--I sparkfrontend
--I sparkfrontend/spark
+-R sparkfrontend sparkfrontend
+-R spark spark
