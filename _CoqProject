@@ -1,4 +1,4 @@
--batch -load-vernac-source -no-native-compiler
+-arg -no-native-compiler
 
 -R ia32 compcert.ia32
 -R lib compcert.lib
