@@ -1,13 +1,35 @@
 Require Import
  ZArith function_utils LibHypsNaming Errors spark2Cminor Cminor
  symboltable semantics semantics_properties Sorted Relations
- compcert.lib.Integers compcert_utils more_stdlib Utf8.
+ compcert.lib.Integers compcert_utils more_stdlib.
 
 Require Ctypes.
 Import Symbol_Table_Module Memory.
 
 Open Scope error_monad_scope.
 Open Scope Z_scope.
+Notation "∀ x .. y , P" := (forall x, .. (forall y, P) ..)
+  (at level 200, x binder, y binder, right associativity,
+  format "'[hv' ∀  '[' x  '/' ..  '/' y , ']' '/' P ']'") : type_scope.
+Notation "∃ x .. y , P" := (exists x, .. (exists y, P) ..)
+  (at level 200, x binder, y binder, right associativity,
+   format "'[hv' ∃  '[' x  '/' ..  '/' y , ']' '/' P ']'") : type_scope.
+Notation "'λ' x .. y , P" := (fun x => .. (fun y => P) ..)
+  (at level 200, x binder, y binder, right associativity,
+   format "'[hv' λ  '[' x  '/' ..  '/' y , ']' '/' P ']'") : type_scope.
+
+
+Notation "x ∨ y" := (x \/ y) (at level 85, right associativity) : type_scope.
+Notation "x ∧ y" := (x /\ y) (at level 80, right associativity) : type_scope.
+Notation "x → y" := (x -> y)
+  (at level 99, y at level 200, right associativity): type_scope.
+
+Notation "x ↔ y" := (x <-> y) (at level 95, no associativity): type_scope.
+Notation "¬ x" := (~x) (at level 75, right associativity) : type_scope.
+Notation "x ≠ y" := (x <> y) (at level 70) : type_scope.
+Notation "x ≤ y" := (le x y) (at level 70, no associativity).
+Notation "x ≥ y" := (ge x y) (at level 70, no associativity).
+
 
 (** Hypothesis renaming stuff from other files *)
 Ltac rename_hyp_prev h th :=
@@ -1083,7 +1105,7 @@ Proof.
     + discriminate.
   - decomp (IHr _ heq_tr_expr_e _ _ _ _ _ _ h_eval_expr_e_v h_match_env).
     decomp (IHr0 _ heq_tr_expr_e0 _ _ _ _ _ _ h_eval_expr_e0_v h_match_env).
-    assert (hex:(exists b, v = Bool b) ∨ (exists n, v = Int n)). {
+    assert (hex:or (exists b, v = Bool b) (exists n, v = Int n)). {
       apply do_run_time_check_on_binop_ok in h_do_rtc_binop.
       rewrite binopexp_ok in h_do_rtc_binop.
       functional inversion h_do_rtc_binop;subst;eq_same_clear
@@ -1191,7 +1213,7 @@ Inductive le_loads (lds: Cminor.expr): Cminor.expr -> Prop :=
   le_loads_n: le_loads lds lds
 | le_loads_L: ∀ lds', le_loads lds lds' -> le_loads lds (Eload AST.Mint32 lds').
 
-Definition lt_loads := λ l₁ l₂, le_loads(Eload AST.Mint32 l₁) l₂.
+Definition lt_loads := λ l₁ l₂ , le_loads(Eload AST.Mint32 l₁) l₂.
 
 Lemma le_loads_ese_L : forall lds₁ lds₂: Cminor.expr,
     le_loads lds₁ lds₂ -> le_loads (Eload AST.Mint32 lds₁) (Eload AST.Mint32 lds₂).
@@ -2384,10 +2406,10 @@ Qed.
 
 Lemma transl_stmt_normal_OK : forall stbl (stm:statement) s s',
     eval_stmt stbl s stm (Normal s') ->
-    forall CE (stm':Cminor.stmt) locenv g m,
+    forall CE (stm':Cminor.stmt),
       invariant_compile CE stbl ->
       transl_stmt stbl CE stm = (OK stm') ->
-      forall spb ofs f,
+      forall spb ofs f locenv g m,
         match_env stbl s CE (Values.Vptr spb ofs) locenv g m ->
         exists tr locenv' m',
           Cminor.exec_stmt g f (Values.Vptr spb ofs) locenv m stm' tr locenv' m' Out_normal
@@ -2563,8 +2585,8 @@ Proof.
     rename_hyps.
     + decomp (transl_expr_ok _ _ _ e_t heq_tr_expr_e locenv g m _ _
                              (Values.Vptr spb ofs) h_eval_expr h_match_env).
-      decomp (IHh_eval_stmt s' eq_refl CE b_then locenv g m h_inv_comp_CE_st heq_transl_stmt_stmt_b_then spb ofs f
-                            h_match_env).
+      decomp (IHh_eval_stmt s' eq_refl CE b_then h_inv_comp_CE_st heq_transl_stmt_stmt_b_then spb ofs f
+                            locenv g m h_match_env).
       exists x.
       exists x0.
       exists x1.
@@ -2592,8 +2614,8 @@ Proof.
     rename_hyps.
     + decomp (transl_expr_ok _ _ _ e_t heq_tr_expr_e locenv g m _ _
                              (Values.Vptr spb ofs) h_eval_expr h_match_env).
-      decomp (IHh_eval_stmt s' eq_refl CE b_else locenv g m h_inv_comp_CE_st heq_transl_stmt_stmt_b_else spb ofs f
-                            h_match_env).
+      decomp (IHh_eval_stmt s' eq_refl CE b_else h_inv_comp_CE_st heq_transl_stmt_stmt_b_else spb ofs f
+                            locenv g m h_match_env).
       exists x.
       exists x0.
       exists x1.
@@ -2617,12 +2639,28 @@ Proof.
       split.
       * assumption.
       * assumption.
-  - admit. (* Procedure Call *)
+  - subst x1.
+    subst current_lvl.
+    rewrite <- transl_stmt_ok in heq_transl_stmt_stm'.
+    !functional inversion heq_transl_stmt_stm';subst;eq_same_clear; clear heq_transl_stmt_stm'.
+    subst x3.
+    subst current_lvl.
+    eq_same_clear.
+    !assert(exists stm', transl_stmt st CE (procedure_statements pb) =: stm').
+    { admit. (* All procedures do compile *) }
+    !destruct h_ex.
+    rename x into pb_stmt.
+    rename_hyps.
+    specialize IHh_eval_stmt with (1:=eq_refl) (2:=h_inv_comp_CE_st) (3:=heq_transl_stmt_pb_stmt).
+    unfold transl_procsig in *.
+    unfold symboltable.fetch_proc in heq.
+    rewrite heq in heq1.
+    admit. (* Procedure Call *)
   - simpl in *.
-    decomp (IHh_eval_stmt1 s1 eq_refl CE _ locenv g m h_inv_comp_CE_st
-                           heq1 spb ofs f h_match_env).
-    decomp (IHh_eval_stmt2 s' eq_refl CE _ _ _ _ h_inv_comp_CE_st
-                           heq0 spb ofs f h_match_env0).
+    decomp (IHh_eval_stmt1 s1 eq_refl CE _ h_inv_comp_CE_st
+                           heq1 spb ofs f  locenv g m h_match_env).
+    decomp (IHh_eval_stmt2 s' eq_refl CE _ h_inv_comp_CE_st
+                           heq0 spb ofs f _ _ _ h_match_env0).
     exists (Events.Eapp x1 x4).
     exists x5.
     exists x6.
