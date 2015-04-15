@@ -8,6 +8,8 @@ Import Symbol_Table_Module Memory.
 
 Open Scope error_monad_scope.
 Open Scope Z_scope.
+
+(* stdlib unicode binders are not boxed correctly imho. *)
 Notation "∀ x .. y , P" := (forall x, .. (forall y, P) ..)
   (at level 200, x binder, y binder, right associativity,
   format "'[hv' ∀  '[' x  '/' ..  '/' y , ']' '/' P ']'") : type_scope.
@@ -17,13 +19,9 @@ Notation "∃ x .. y , P" := (exists x, .. (exists y, P) ..)
 Notation "'λ' x .. y , P" := (fun x => .. (fun y => P) ..)
   (at level 200, x binder, y binder, right associativity,
    format "'[hv' λ  '[' x  '/' ..  '/' y , ']' '/' P ']'") : type_scope.
-
-
 Notation "x ∨ y" := (x \/ y) (at level 85, right associativity) : type_scope.
 Notation "x ∧ y" := (x /\ y) (at level 80, right associativity) : type_scope.
-Notation "x → y" := (x -> y)
-  (at level 99, y at level 200, right associativity): type_scope.
-
+Notation "x → y" := (x -> y) (at level 99, y at level 200, right associativity): type_scope.
 Notation "x ↔ y" := (x <-> y) (at level 95, no associativity): type_scope.
 Notation "¬ x" := (~x) (at level 75, right associativity) : type_scope.
 Notation "x ≠ y" := (x <> y) (at level 70) : type_scope.
@@ -2642,19 +2640,71 @@ Proof.
   - subst x1.
     subst current_lvl.
     rewrite <- transl_stmt_ok in heq_transl_stmt_stm'.
+    rename s1 into suffix_s .
+    rename s3 into suffix_s'.
+    rename y into lvl_p.
+    rename x into args_t.
+    rename x0 into p_sign.
     !functional inversion heq_transl_stmt_stm';subst;eq_same_clear; clear heq_transl_stmt_stm'.
-    subst x3.
+    subst x1.
     subst current_lvl.
     eq_same_clear.
     !assert(exists stm', transl_stmt st CE (procedure_statements pb) =: stm').
     { admit. (* All procedures do compile *) }
     !destruct h_ex.
-    rename x into pb_stmt.
+    rename x0 into pb_stmt.
     rename_hyps.
     specialize IHh_eval_stmt with (1:=eq_refl) (2:=h_inv_comp_CE_st) (3:=heq_transl_stmt_pb_stmt).
     unfold transl_procsig in *.
     unfold symboltable.fetch_proc in heq.
     rewrite heq in heq1.
+
+
+    eexists.
+    eexists.
+    eexists.
+    split.
+    + econstructor.
+      * econstructor.
+        econstructor.
+      *
+
+(*
+Lemma foo : 
+  copy_in st s (newFrame n) (procedure_parameter_profile pb) args (Normal f).
+        Proof.
+          #
+        Qed.
+
+
+ assert (let (lvl,f1stk) := f in ∃ args_t,
+                          List.Forall2 (λ a b, transl_value (snd a) b) f1stk args_t). {
+          remember (procedure_parameter_profile pb) as profile.
+          remember (newFrame n) as newfr.
+          remember (Normal f) as newf_copyin.
+          revert profile.
+          revert newfr.
+          revert dependent newf_copyin.
+          
+          destruct f;simpl in *.
+          { induction H0;subst;simpl in *;try !invclear Heqnewf_copyin;subst.
+            - exists (@nil Values.val).
+              constructor.
+            - 
+          
+          injection Heqnewf_copyin.
+          induction profile;simpl in *.
+*)          
+
+
+
+
+
+
+
+
+
+
     admit. (* Procedure Call *)
   - simpl in *.
     decomp (IHh_eval_stmt1 s1 eq_refl CE _ h_inv_comp_CE_st
