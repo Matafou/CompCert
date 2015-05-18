@@ -1,4 +1,3 @@
--arg -no-native-compiler
 
 -R ia32 compcert.ia32
 -R lib compcert.lib
