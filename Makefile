@@ -21,12 +21,11 @@ THEDIRS=lib common $(ARCH) backend cfrontend driver debug\
 
 RECDIRS=lib common $(ARCH) backend cfrontend driver flocq exportclight cparser
 
-# TODO: use -R for spark
-COQINCLUDES=$(foreach d, $(RECDIRS), -R $(d) compcert.$(d)) -I sparkfrontend -I sparkfrontend/spark
+COQINCLUDES=$(foreach d, $(RECDIRS), -R $(d) compcert.$(d)) -R sparkfrontend sparkfrontend -R spark spark
 
-CAMLINCLUDES=$(patsubst %,-I %, $(THEDIRS)) -I extraction  -I sparkfrontend -I sparkfrontend/spark
+CAMLINCLUDES=$(patsubst %,-I %, $(THEDIRS)) -I extraction  -I sparkfrontend -I spark
 
-DIRS= $(THEDIRS) sparkfrontend sparkfrontend/spark 
+DIRS= $(THEDIRS) sparkfrontend spark 
 
 MENHIR=menhir
 
@@ -50,21 +49,21 @@ GPATH=$(DIRS)
 #  sparkfrontend/spark/well_typed.v \
 
 SPARK=\
-  sparkfrontend/spark/util.v \
-  sparkfrontend/spark/more_list.v \
-  sparkfrontend/spark/symboltable_module.v \
-  sparkfrontend/spark/environment.v \
-  sparkfrontend/spark/language_basics.v \
-  sparkfrontend/spark/language_flagged.v \
-  sparkfrontend/spark/language_util.v \
-  sparkfrontend/spark/language.v \
-  sparkfrontend/spark/symboltable.v \
-  sparkfrontend/spark/semantics.v \
-  sparkfrontend/spark/semantics_flagged.v \
-  sparkfrontend/spark/LibTactics.v \
-  sparkfrontend/spark/CpdtTactics.v \
-  sparkfrontend/spark/checks.v \
-  sparkfrontend/spark/values.v \
+  spark/util.v \
+  spark/more_list.v \
+  spark/symboltable_module.v \
+  spark/environment.v \
+  spark/language_basics.v \
+  spark/language_flagged.v \
+  spark/language_util.v \
+  spark/language.v \
+  spark/symboltable.v \
+  spark/semantics.v \
+  spark/semantics_flagged.v \
+  spark/LibTactics.v \
+  spark/CpdtTactics.v \
+  spark/checks.v \
+  spark/values.v \
   sparkfrontend/LibHypsNaming.v \
   sparkfrontend/function_utils.v \
   sparkfrontend/semantics_properties.v \
