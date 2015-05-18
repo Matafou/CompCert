@@ -15,13 +15,20 @@
 
 include Makefile.config
 
-DIRS=lib common $(ARCH) backend cfrontend driver debug\
+THEDIRS=lib common $(ARCH) backend cfrontend driver debug\
   flocq/Core flocq/Prop flocq/Calc flocq/Appli exportclight \
   cparser cparser/validator
 
 RECDIRS=lib common $(ARCH) backend cfrontend driver flocq exportclight cparser
 
-COQINCLUDES=$(foreach d, $(RECDIRS), -R $(d) compcert.$(d))
+# TODO: use -R for spark
+COQINCLUDES=$(foreach d, $(RECDIRS), -R $(d) compcert.$(d)) -I sparkfrontend -I sparkfrontend/spark
+
+CAMLINCLUDES=$(patsubst %,-I %, $(THEDIRS)) -I extraction  -I sparkfrontend -I sparkfrontend/spark
+
+DIRS= $(THEDIRS) sparkfrontend sparkfrontend/spark 
+
+MENHIR=menhir
 
 COQC="$(COQBIN)coqc" -q $(COQINCLUDES)
 COQDEP="$(COQBIN)coqdep" $(COQINCLUDES)
@@ -31,8 +38,35 @@ COQCHK="$(COQBIN)coqchk" $(COQINCLUDES)
 MENHIR=menhir
 CP=cp
 
-VPATH=$(DIRS)
+VPATH=$(DIRS) 
 GPATH=$(DIRS)
+
+
+SPARK=\
+  sparkfrontend/spark/util.v \
+  sparkfrontend/spark/more_list.v \
+  sparkfrontend/spark/checks_comparison.v \
+  sparkfrontend/spark/symboltable_module.v \
+  sparkfrontend/spark/environment.v \
+  sparkfrontend/spark/language_basics.v \
+  sparkfrontend/spark/language_flagged.v \
+  sparkfrontend/spark/language.v \
+  sparkfrontend/spark/symboltable.v \
+  sparkfrontend/spark/semantics.v \
+  sparkfrontend/spark/semantics_flagged.v \
+  sparkfrontend/spark/LibTactics.v \
+  sparkfrontend/spark/well_check_flagged.v \
+  sparkfrontend/spark/well_typed.v \
+  sparkfrontend/spark/CpdtTactics.v \
+  sparkfrontend/spark/checks.v \
+  sparkfrontend/spark/checks_generator.v \
+  sparkfrontend/spark/checks_soundness.v \
+  sparkfrontend/spark/values.v \
+  sparkfrontend/spark/checks_optimization.v \
+  sparkfrontend/spark/checks_optimization_soundness.v \
+  sparkfrontend/spark2Cminor.v \
+# wellformedness.v propertyProof.v typing.v monad.v  FrameStackGen.v  foo.v language_template.v 
+
 
 # Flocq
 
@@ -113,7 +147,7 @@ DRIVER=Compopts.v Compiler.v Complements.v
 
 # All source files
 
-FILES=$(VLIB) $(COMMON) $(BACKEND) $(CFRONTEND) $(DRIVER) $(FLOCQ) \
+FILES=$(VLIB) $(COMMON) $(BACKEND) $(SPARK) $(CFRONTEND) $(DRIVER) $(FLOCQ) \
   $(PARSERVALIDATOR) $(PARSER)
 
 all:
