@@ -585,7 +585,7 @@ Definition transl_params (stbl:symboltable) (pnum:procnum) (CE: compilenv)
     | Some (lvl , pdecl) => transl_paramexprlist stbl CE el (procedure_parameter_profile pdecl)
   end.
 
-
+(* FIXME, return lvl directly instead of counting on transl_lparameter_specification_to_procsig *)
 Definition transl_procsig (stbl:symboltable) (pnum:procnum)
   : res (AST.signature * Symbol_Table_Module.level) :=
   match fetch_proc pnum stbl with
@@ -715,14 +715,26 @@ Fixpoint build_frame_decl (stbl:symboltable) (fram_sz:localframe * Z)
   end.
 
 
-
 (* [build_compilenv stbl enclosingCE pbdy] returns the new compilation
    environment built from the one of the enclosing procedure
    [enclosingCE] and the list of parameters [lparams] and local
-   variables [decl]. It attributes an offset to each of these
-   variable names. One of the things to note here is that it adds a
-   variable at offset 0 which contains the address of the frame of the
-   enclosing procedure, for chaining. Procedures are ignored. *)
+   variables [decl]. It attributes an offset to each of these variable
+   names.
+
+   - One of the things to note here is that it adds a variable at
+     offset 0 which contains the address of the frame of the enclosing
+     procedure, for chaining. Procedures are ignored.
+
+   - Another thing is that we use the same compilenv for all
+     procedures of one declaration bloc. Strictly speaking this means
+     that all variables are reachable by all porcedures. In spark only
+     variables declared before a procedure can be reached. Since
+
+     1) This restriction is verified at typing/well-formedness
+     checking anyway and
+     2) All variables have unique names,
+
+    this is correct. *)
 Fixpoint build_compilenv (stbl:symboltable) (enclosingCE:compilenv) (lvl:Symbol_Table_Module.level)
          (lparams:list parameter_specification) (decl:declaration) : res (compilenv*Z) :=
   let '(init,sz) := match lvl with
