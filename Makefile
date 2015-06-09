@@ -69,8 +69,7 @@ SPARK=\
   sparkfrontend/function_utils.v \
   sparkfrontend/semantics_properties.v \
   sparkfrontend/spark2Cminor.v \
-  sparkfrontend/compcert_utils.v \
-  sparkfrontend/spark2cmproofs.v
+  sparkfrontend/compcert_utils.v # sparkfrontend/spark2cmproofs.v
 
 # wellformedness.v propertyProof.v typing.v monad.v  FrameStackGen.v  foo.v language_template.v 
 

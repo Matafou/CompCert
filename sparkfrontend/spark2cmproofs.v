@@ -2689,8 +2689,7 @@ Proof.
                                   (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) vf
                /\ Globalenvs.Genv.find_funct g vf = Some fdecl
                /\ CompilEnv.cut_until CE n intact_CE suffix_CE
-               /\ forall l, transl_procedure st suffix_CE n pb l
-                            = OK ((fid,@AST.Gfun _ _ fdecl)::l)).
+               /\ exists l , transl_procedure st suffix_CE n pb = OK ((fid,@AST.Gfun _ _ fdecl)::l)).
     { (* looking for translated proc name gives the translated procdef. This should be part of the invariant *)
       assert (newinvariant: forall x, symboltable.fetch_proc p st = Some x
                                       -> exists x',  Globalenvs.Genv.find_symbol g (transl_procid p) = Some x').

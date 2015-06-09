@@ -231,7 +231,49 @@ let compile_sparkobj_file ifile ofile =
     exit 2
   | Errors.OK p ->
     let oc = open_out ofile in
-    PrintAsm.print_program oc p;
+    PrintAsm.print_program oc p None;
+    close_out oc
+
+(* From SPARK to asm *)
+let compile_sparkobj_file ifile ofile =
+  (* Prepare to dump Clight, RTL, etc, if requested *)
+  let set_dest dst opt ext =
+    dst := if !opt then Some (output_filename ifile ".mlo" ext)
+                   else None in
+  set_dest PrintCminor.destination option_dcminor ".cm";
+  set_dest PrintRTL.destination option_drtl ".rtl";
+  set_dest Regalloc.destination_alloctrace option_dalloctrace ".alloctrace";
+  set_dest PrintLTL.destination option_dltl ".ltl";
+  set_dest PrintMach.destination option_dmach ".mach";
+  Sections.initialize(); (* ??? *)
+  let ic = open_in ifile in
+  let ((stbl,ast)
+      : Symboltable.Symbol_Table_Module.symboltable * Language.declaration)
+      = input_value ic in
+  (* Registering names for spark id numbers. Names and ids are already
+     linked in Sireum output, we register it as is. *)
+  (* Sireum generated table for procedures *)
+  let sireum_proc_name_table =
+    stbl.Symboltable.Symbol_Table_Module.names.Symboltable_module.procNames in
+  let sireum_var_name_table =
+    stbl.Symboltable.Symbol_Table_Module.names.Symboltable_module.varNames in
+  let register_sireum_name (idnum,(idname,uri)) =
+    let pnumpos = P.of_int (80 + Nat.to_int idnum) in
+    let pnmestr = camlstring_of_coqstring idname in
+    (* debuging name info *)
+    (* Printf.printf "Hashtbl.add atom_of_string %s %d" pnmestr (Nat.to_int pnum); *)
+      Hashtbl.add atom_of_string pnmestr pnumpos;
+      Hashtbl.add string_of_atom pnumpos pnmestr in
+  List.iter register_sireum_name sireum_proc_name_table;
+  List.iter register_sireum_name sireum_var_name_table;
+  let res = Compiler.transf_spark_program stbl ast in
+  match res with
+  | Errors.Error msg ->
+    print_error stderr msg;
+    exit 2
+  | Errors.OK p ->
+    let oc = open_out ofile in
+    PrintAsm.print_program oc p None;
     close_out oc
 
 (* From Cminor to asm *)

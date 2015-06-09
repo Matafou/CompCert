@@ -863,7 +863,7 @@ Definition CMfundecls: Type := (list (AST.ident * AST.globdef fundef unit)).
     local vars. The postlude copies "Out" parameters to there destination
     variables. *)
 Fixpoint transl_procedure (stbl:symboltable) (enclosingCE:compilenv)
-         (lvl:Symbol_Table_Module.level) (pbdy:procedure_body) (lfundef:CMfundecls)
+         (lvl:Symbol_Table_Module.level) (pbdy:procedure_body)
   : res CMfundecls  :=
   match pbdy with
     | mkprocedure_body _ pnum lparams decl statm =>
@@ -873,7 +873,7 @@ Fixpoint transl_procedure (stbl:symboltable) (enclosingCE:compilenv)
         then
           (* generate nested procedures inside [decl] with CE compile
              environment with one more lvl. *)
-          do newlfundef <- transl_declaration stbl CE (S lvl) decl lfundef;
+          do newlfundef <- transl_declaration stbl CE (S lvl) decl;
           (* translate the statement of the procedure *)
           do bdy <- transl_stmt stbl CE statm ;
           (* Adding prelude: initialization of variables *)
@@ -930,15 +930,15 @@ Fixpoint transl_procedure (stbl:symboltable) (enclosingCE:compilenv)
 (* FIXME: check the size needed for the declarations *)
 with transl_declaration
        (stbl:symboltable) (enclosingCE:compilenv)
-       (lvl:Symbol_Table_Module.level) (decl:declaration) (lfundef:CMfundecls)
+       (lvl:Symbol_Table_Module.level) (decl:declaration)
      : res CMfundecls :=
   match decl with
       | D_Procedure_Body _ pbdy =>
-        transl_procedure stbl enclosingCE lvl pbdy lfundef
+        transl_procedure stbl enclosingCE lvl pbdy
       | D_Seq_Declaration _ decl1 decl2 =>
-        do p1 <- transl_declaration stbl enclosingCE lvl decl1 lfundef;
-        do p2 <- transl_declaration stbl enclosingCE lvl decl2 p1;
-        OK p2
+        do p1 <- transl_declaration stbl enclosingCE lvl decl1;
+        do p2 <- transl_declaration stbl enclosingCE lvl decl2;
+        OK (p1++p2)
       | D_Object_Declaration astnum objdecl =>
         do tobjdecl <- OK (transl_paramid objdecl.(object_name),
                            AST.Gvar {| AST.gvar_info := tt;
@@ -946,11 +946,11 @@ with transl_declaration
                                        AST.gvar_readonly := false; (* FIXME? *)
                                        AST.gvar_volatile := false |} (* FIXME? *)
                           ) ; (*transl_objdecl stbl 0  ;*)
-        OK (tobjdecl :: lfundef)
+        OK [tobjdecl]
 
       | D_Type_Declaration _ _ =>
         Error (msg "transl_declaration: D_Type_Declaration not yet implemented")
-      | D_Null_Declaration => OK lfundef
+      | D_Null_Declaration => OK nil
   end.
 
 (** In Ada the main procedure is generally a procedure at toplevel
@@ -982,7 +982,7 @@ Definition transl_program (stbl:symboltable) (decl:declaration) : res (Cminor.pr
     | Some mainprocnum =>
       (* Check size returned by build_compilenv *)
       do (cenv,_) <- build_compilenv stbl nil 0%nat(*nesting lvl*) nil(*params*) decl ;
-      do lfdecl <- transl_declaration stbl cenv 0%nat(*nesting lvl*) decl nil(*empty accumlator*) ;
+      do lfdecl <- transl_declaration stbl cenv 0%nat(*nesting lvl*) decl ;
       OK (build_empty_program_with_main mainprocnum lfdecl)
   end.
 
