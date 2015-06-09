@@ -2683,11 +2683,14 @@ Proof.
     specialize (IHh_eval_stmt _ eq_refl _ _ h_inv_comp_CE_st heq_transl_p_stmt).
 
     (* the Cminor function called is an expression that evaluates correctly to something. *)
-    assert (exists vf fdecl fid fd intact_CE suffix_CE,
-               Cminor.eval_expr g (Values.Vptr spb ofs) locenv m (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) vf
+    assert (forall p,
+               exists vf fdecl fid intact_CE suffix_CE,
+                 Cminor.eval_expr g (Values.Vptr spb ofs) locenv m
+                                  (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) vf
                /\ Globalenvs.Genv.find_funct g vf = Some fdecl
                /\ CompilEnv.cut_until CE n intact_CE suffix_CE
-               /\ transl_procedure st suffix_CE n pb suffix_CE = OK [(fid,@AST.Gfun _ _ fdecl)]).
+               /\ forall l, transl_procedure st suffix_CE n pb l
+                            = OK ((fid,@AST.Gfun _ _ fdecl)::l)).
     { (* looking for translated proc name gives the translated procdef. This should be part of the invariant *)
       assert (newinvariant: forall x, symboltable.fetch_proc p st = Some x
                                       -> exists x',  Globalenvs.Genv.find_symbol g (transl_procid p) = Some x').

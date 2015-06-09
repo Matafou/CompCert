@@ -541,9 +541,9 @@ Definition default_calling_convention := {| AST.cc_vararg := true;
 
 Definition transl_lparameter_specification_to_procsig
            (stbl:symboltable) (lvl:Symbol_Table_Module.level)
-           (lparams:list parameter_specification) : res (AST.signature * Symbol_Table_Module.level) :=
+           (lparams:list parameter_specification) : res AST.signature :=
   do tparams <- transl_lparameter_specification_to_ltype stbl lparams ;
-  OK ({|
+  OK {|
          (* add a void* to the list of parameters, for frame chaining *)
          AST.sig_args:= match lvl with
                           | O => tparams
@@ -551,7 +551,7 @@ Definition transl_lparameter_specification_to_procsig
                         end ;
          AST.sig_res := None ; (* procedure: no return type *)
          AST.sig_cc := default_calling_convention
-       |}, lvl).
+       |}.
 
 
 Fixpoint transl_paramexprlist (stbl: symboltable) (CE: compilenv) (el: list expression)
@@ -590,8 +590,10 @@ Definition transl_procsig (stbl:symboltable) (pnum:procnum)
   : res (AST.signature * Symbol_Table_Module.level) :=
   match fetch_proc pnum stbl with
       | None => Error (msg "Unkonwn procedure")
-      | Some (lvl , pdecl) => transl_lparameter_specification_to_procsig
-                                stbl lvl (procedure_parameter_profile pdecl)
+      | Some (lvl , pdecl) =>
+        do sig <- transl_lparameter_specification_to_procsig
+           stbl lvl (procedure_parameter_profile pdecl);
+          OK (sig,lvl)
   end.
 
 (* We don't want to change procedure names so we probably need to
@@ -714,6 +716,21 @@ Fixpoint build_frame_decl (stbl:symboltable) (fram_sz:localframe * Z)
       Error (msg "build_frame_decl: proc decl no implemented yet")
   end.
 
+
+(* [build_proc_decl stbl (fram,sz) decl] experimenting a way to translate
+   procedure one by one instead of recursively. *)
+Fixpoint build_proc_decl (lvl:Symbol_Table_Module.level)
+         (stbl:symboltable) (decl:declaration): list procedure_body :=
+  match decl with
+    | D_Null_Declaration => []
+    | D_Seq_Declaration _ decl1 decl2 =>
+      let l1 := build_proc_decl (S lvl) stbl decl1 in
+      let l2 := build_proc_decl (S lvl) stbl decl2 in
+      l1 ++ l2
+    | D_Object_Declaration _ objdecl => []
+    | D_Type_Declaration _ typdcl => []
+    | D_Procedure_Body _ pbdy => pbdy::build_proc_decl (S lvl) stbl (procedure_declarative_part pbdy)
+  end.
 
 (* [build_compilenv stbl enclosingCE pbdy] returns the new compilation
    environment built from the one of the enclosing procedure
@@ -879,7 +896,7 @@ Fixpoint transl_procedure (stbl:symboltable) (enclosingCE:compilenv)
                                       (Sseq locvarinit
                                             (Sseq bdy copyout)))) ;
 
-          do (procsig,_) <- transl_lparameter_specification_to_procsig stbl lvl lparams ;
+          do procsig <- transl_lparameter_specification_to_procsig stbl lvl lparams ;
           (** For a given "out" (or inout) argument x of type T of a procedure P:
              - transform T into T*, and change conequently the calls to P and signature of P.
              - add code to copy *x into the local stack at the
