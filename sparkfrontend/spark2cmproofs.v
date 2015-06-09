@@ -2683,19 +2683,43 @@ Proof.
     specialize (IHh_eval_stmt _ eq_refl _ _ h_inv_comp_CE_st heq_transl_p_stmt).
 
     (* the Cminor function called is an expression that evaluates correctly to something. *)
-    assert (forall p,
+    assert (h_ex_paddr:exists vf,
+               Cminor.eval_expr g (Values.Vptr spb ofs) locenv m
+                                (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) vf).
+    { admit. }
+    destruct h_ex_paddr as [paddr hpaddr].
+    eexists.
+    eexists.
+    eexists.
+    split.
+    + eapply exec_Scall with (vf:=paddr).
+      * assumption.
+      * 
+        assert ((copy_in st s (newFrame n) (procedure_parameter_profile pb) args (Normal f))
+         -> transl_params st p CE args =: args_t
+         -> exists sto,
+xxx             (*transl_value is a predicate, need transl_listvalue here*)
+             transl_list_value (List.map snd (store_of f)) sto
+              -> eval_exprlist g (Values.Vptr spb ofs) locenv m
+                               (build_loads_ (Datatypes.length CE - 1 - lvl_p) :: args_t) sto).
+        (* copy_in performes the eval_expr on arguments *)
+
+
+    assert (
                exists vf fdecl fid intact_CE suffix_CE,
                  Cminor.eval_expr g (Values.Vptr spb ofs) locenv m
                                   (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) vf
                /\ Globalenvs.Genv.find_funct g vf = Some fdecl
                /\ CompilEnv.cut_until CE n intact_CE suffix_CE
                /\ exists l , transl_procedure st suffix_CE n pb = OK ((fid,@AST.Gfun _ _ fdecl)::l)).
-    { (* looking for translated proc name gives the translated procdef. This should be part of the invariant *)
+    {
+
+      (* looking for translated proc name gives the translated procdef. This should be part of the invariant *)
       assert (newinvariant: forall x, symboltable.fetch_proc p st = Some x
                                       -> exists x',  Globalenvs.Genv.find_symbol g (transl_procid p) = Some x').
       { admit. }
       destruct (newinvariant _ heq) as [p_t heq_p_t].
-      eexists.
+      exists p_t.
       econstructor.
       simpl.
       rewrite heq_p_t.
