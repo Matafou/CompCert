@@ -2682,15 +2682,23 @@ Proof.
     (* IDEA: prove a similar lemma simultaneaously on funcall, with a different invariant. *)
 
     (* On Cminor side, the function to be called is an expression that
-       evaluates correctly to something. *)
+       evaluates correctly to something. Consequence of Well-typedness+invariant? *)
     assert (h_ex_paddr:exists paddr,
                Cminor.eval_expr g (Values.Vptr spb ofs) locenv m
                                 (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) paddr).
     { admit. }
     destruct h_ex_paddr as [paddr hpaddr].
+    (* The value obtained for the function to call is indeed the
+    address of a function. Well-typedness+invariant? *)
     assert (h:exists fction , Globalenvs.Genv.find_funct g paddr = Some fction).
     { admit. }
     destruct h as [fction hfction].
+    assert(
+        do p_t <- transl_procedure st CE lvl_p pb ;
+        List.hd_error p_t = Some (?? an AST.ident (positive) , @AST.Gfun _ unit fction)).
+        (List.hd _ ) = OK fction).
+
+    assert (invariant_compile ).
 
     
      set (m1sp := Mem.alloc m 0 (fn_stackspace ???)). 
