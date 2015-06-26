@@ -2693,12 +2693,31 @@ Proof.
     assert (h:exists fction , Globalenvs.Genv.find_funct g paddr = Some fction).
     { admit. }
     destruct h as [fction hfction].
+    (* translate_procedure should not fail on pb since compilation of the
+       whole should not have fail (we have to state that, how?). Moreover
+       the currently proved property holds for the translation of pb.
+     *)
     assert(
-        do p_t <- transl_procedure st CE lvl_p pb ;
-        List.hd_error p_t = Some (?? an AST.ident (positive) , @AST.Gfun _ unit fction)).
-        (List.hd _ ) = OK fction).
-
-    assert (invariant_compile ).
+        (do p_t <- transl_procedure st CE lvl_p pb ;
+        match List.hd_error p_t with
+          Some (_,@AST.Gfun _ _ f) => OK f
+        | _ => Error (msg "procedure not translated (??)")
+        end) = OK fction).
+    { admit. } 
+    destruct (transl_procedure st CE lvl_p pb) eqn:h;try discriminate.
+    autorename h.
+    simpl in H.
+    destruct (hd_error c) as [ [v w] v' |] eqn:h;simpl in H; autorename h.
+    + destruct w.
+        inversion H; clear H.
+        subst.
+        unfold transl_procedure in heq2.
+        admit. (* Core of the proof, link the different phase of
+                  execution with the pieces of code built by transl_procedure. *)
+      * discriminate.
+    + discriminate.
+xxxxxxxxx
+      assert (invariant_compile ).
 
     
      set (m1sp := Mem.alloc m 0 (fn_stackspace ???)). 

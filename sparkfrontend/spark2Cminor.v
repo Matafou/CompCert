@@ -269,7 +269,7 @@ Function transl_variable (stbl:symboltable) (CE:compilenv) astnum (nme:idnum) : 
   match (CompilEnv.fetchG nme CE) with
     | None =>  Error (MSG "transl_variable: no such idnum." :: error_msg_with_loc stbl astnum nme)
     | Some n =>
-      match (CompilEnv.frameG nme CE) with
+      match CompilEnv.frameG nme CE with
         | None =>  Error (msg "assert false.")
         | Some (m,_) =>
           match CompilEnv.level_of_top CE with
