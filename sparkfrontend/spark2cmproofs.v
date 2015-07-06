@@ -2695,25 +2695,74 @@ Proof.
     destruct h as [fction hfction].
     (* translate_procedure should not fail on pb since compilation of the
        whole should not have fail (we have to state that, how?). Moreover
-       the currently proved property holds for the translation of pb.
-     *)
-    assert(
-        (do p_t <- transl_procedure st CE lvl_p pb ;
-        match List.hd_error p_t with
-          Some (_,@AST.Gfun _ _ f) => OK f
-        | _ => Error (msg "procedure not translated (??)")
-        end) = OK fction).
+       the currently proved property holds for the translation of pb. *)
+    assert ((do p_t <- transl_procedure st CE lvl_p pb ;
+              match List.hd_error p_t with
+                Some (_,@AST.Gfun _ _ f) => OK f
+              | _ => Error (msg "procedure not translated (??)")
+              end) = OK fction).
     { admit. } 
     destruct (transl_procedure st CE lvl_p pb) eqn:h;try discriminate.
     autorename h.
     simpl in H.
     destruct (hd_error c) as [ [v w] v' |] eqn:h;simpl in H; autorename h.
     + destruct w.
-        inversion H; clear H.
+      * inversion H; clear H.
         subst.
-        unfold transl_procedure in heq2.
-        admit. (* Core of the proof, link the different phase of
-                  execution with the pieces of code built by transl_procedure. *)
+        destruct pb.
+        simpl in heq2.
+        (* Core of the proof, link the different phase of
+           execution with the pieces of code built by transl_procedure. *)
+        destruct (build_compilenv st CE lvl_p procedure_parameter_profile procedure_declarative_part) as [ [CE' stcksize]|] eqn:heq_bldCE.
+        -- simpl in heq2. 
+           destruct (Coqlib.zle stcksize Int.max_unsigned).
+           ++ repeat match type of heq2 with
+                       @eq _ (bind ?y ?x) _ =>
+                       let heqq := fresh "heq" in (* TODO: feed autorename *)
+                       destruct y eqn:heqq; [ autorename heqq; simpl in heq2 | discriminate]
+                     end.
+              rename c0 into newlfundef, s0 into bdy, s1 into locvarinit, s2 into initparams, s3 into chain_param, s4 into copyout.
+              !invclear heq2.
+              simpl in *.
+              !invclear heq3.
+              assert (h_invCE':invariant_compile CE' st).
+              { admit. }
+             remember {|
+                 fn_sig := s5;
+                 fn_params := match lvl_p with
+                              | 0%nat => transl_lparameter_specification_to_lident st procedure_parameter_profile
+                              | S _ => chaining_param :: transl_lparameter_specification_to_lident st procedure_parameter_profile
+                              end;
+                 fn_vars := transl_decl_to_lident st procedure_declarative_part;
+                 fn_stackspace := stcksize;
+                 fn_body := Sseq (Sseq chain_param (Sseq initparams (Sseq locvarinit Sskip)))
+                                 (Sseq bdy copyout) |} as proc.
+
+             destruct (Mem.alloc m 0 stcksize) as [m_f spb_f] eqn:heq_spboff.
+             specialize (IHh_eval_stmt ((pb_lvl, locals_section ++ params_section)::suffix_s') eq_refl CE'
+                                       bdy h_invCE' heq_transl_stmt_procedure_statements_s0 spb_f Int.zero proc).
+(*              (Sseq chain_param (Sseq initparams locvarinit)) *)
+             
+
+
+xxxxxx
+             
+    eexists.
+    eexists.
+    eexists.
+    split.
+    econstructor.
+              ** eassumption.
+              ** 
+    Focus 5.
+    econstructor 1.
+             
+             
+
+
+           ++ discriminate.
+        -- simpl in heq2.
+           discriminate.
       * discriminate.
     + discriminate.
 xxxxxxxxx
