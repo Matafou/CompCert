@@ -538,3 +538,12 @@ Lemma compute_chnk_ok : forall x y, spark2Cminor.compute_chnk x y = compute_chnk
 Proof.
   reflexivity.
 Qed.
+
+
+(* Function bug prevents me to do this *)
+(* Definition transl_procedure := Eval cbv beta delta [bind bind2 transl_procedure] in transl_procedure. *)
+
+(* Add implicit args to Gfun "(AST.fundef function) unit" to work
+   around a limitation of Function *)
+
+

@@ -204,16 +204,16 @@ Ltac rename_if_not_old old_hyps H :=
     match type of H with
     | ?th => 
       let dummy_name := fresh "dummy" in
-      rename H into dummy_name; (* this renaming makes the renaming more or 
-                                          less idempotent, it is backtracked if the
-                                          rename_hyp below fails. *)
+      rename H into dummy_name; (* this renaming makes the renaming more or less
+                                   idempotent, it is backtracked if the
+                                   rename_hyp below fails. *)
         let newname := rename_hyp dummy_name th in
         rename dummy_name into newname
     | ?th => 
       let dummy_name := fresh "dummy" in
-      rename H into dummy_name; (* this renaming makes the renaming more or 
-                                          less idempotent, it is backtracked if the
-                                          rename_hyp below fails. *)
+      rename H into dummy_name; (* this renaming makes the renaming more or less
+                                   idempotent, it is backtracked if the
+                                   rename_hyp below fails. *)
         let newname := fallback_rename_hyp dummy_name th in
         rename dummy_name into newname
     | _ => idtac (* "no renaming pattern for " H *)
@@ -237,6 +237,32 @@ Ltac autorename H := rename_if_not_old (I) H.
 Tactic Notation "!!" tactic3(Tac) := (rename_new_hyps Tac).
 Tactic Notation "!!" tactic3(Tac) constr(h) :=
   (rename_new_hyps (Tac h)).
+
+Ltac subst_if_not_old old_hyps H :=
+  match old_hyps with
+  | context [H] => idtac
+  | _ => 
+    match type of H with
+    | ?x = ?y => subst x
+    | ?x = ?y => subst y
+    | _ => idtac
+    end
+  end.
+
+Ltac subst_new_hyps tac :=
+  let old_hyps := all_hyps in
+  let substnew H := subst_if_not_old old_hyps H in
+  tac
+  ; let new_hyps := all_hyps in
+    map_hyps substnew new_hyps.
+
+(* do we need a syntax for this. *)
+(* Tactic Notation "" tactic3(Tac) := subst_new_hyps Tac. *)
+
+(* !!! tac performs tac, then subst with new hypothesis, then rename
+remaining new hyps. *)
+Tactic Notation "!!!" tactic3(Tac) := !! (subst_new_hyps Tac).
+
 
 (** ** Renaming Tacticals *)
 
@@ -274,8 +300,8 @@ Tactic Notation "!functional" "induction" constr(h) :=
 Tactic Notation "!functional" "inversion" constr(h) :=
   !! (functional inversion h).
 Tactic Notation "!destruct" constr(h) := !! (destruct h).
-Tactic Notation "!inversion" hyp(h) := !! (inversion h;subst).
-Tactic Notation "!invclear" hyp(h) := !! (inversion h;clear h;subst).
+Tactic Notation "!inversion" hyp(h) := !!! (inversion h).
+Tactic Notation "!invclear" hyp(h) := !!! (inversion h;clear h).
 Tactic Notation "!assert" constr(h) := !! (assert h).
 (*
 Tactic Notation "!intros" := idall;intros;rename_hyps.
