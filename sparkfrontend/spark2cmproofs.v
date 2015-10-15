@@ -36,6 +36,22 @@ Notation "x ≠ y" := (x <> y) (at level 70) : type_scope.
 Notation "x ≤ y" := (le x y) (at level 70, no associativity).
 Notation "x ≥ y" := (ge x y) (at level 70, no associativity).
 
+
+(* A tactic which moves up a hypothesis if it sort is Type or Set. *)
+Ltac move_up_types H := match type of H with
+                        | ?T => match type of T with
+                                | Prop => idtac
+                                | Set => move H at top
+                                | Type => move H at top
+                                end
+                        end.
+
+(* Iterating the tactic on all hypothesis. Moves up all Set/Type
+   variables to the top. Really useful with [Set Compact Context]
+   which is no yet commited in coq-trunk. *)
+Ltac up_type := map_all_hyps_rev move_up_types.
+
+
 (** Hypothesis renaming stuff from other files *)
 Ltac rename_hyp_prev h th :=
   match th with
@@ -2417,12 +2433,6 @@ Proof.
   eapply build_loads_Vptr;eauto.
 Qed.
 
-
-Ltac rename_all_hyps :=
-  let renam H := rename_if_not_old (I) H in
-  let hyps := all_hyps in
-  map_hyps renam hyps.
-
 Lemma transl_stmt_normal_OK : forall stbl (stm:statement) s s',
     eval_stmt stbl s stm (Normal s') ->
     forall CE (stm':Cminor.stmt),
@@ -2680,15 +2690,7 @@ Proof.
     subst current_lvl.
     rename n into pb_lvl.
     eq_same_clear.
-
-    Ltac move_up_types H := match type of H with
-                            | ?T => match type of T with
-                                    | Prop => idtac
-                                    | Set => move H at top
-                                    | Type => move H at top
-                                    end
-                            end.
-    map_hyps move_up_types all_hyps.
+    up_type.
 
     Notation "'PROC' pb ~~[ st , CE ]~~> stm" :=
       (transl_stmt st CE (procedure_statements pb) =: stm) (at level 90).
@@ -2736,33 +2738,51 @@ Proof.
     rewrite <- ?heq_pb in h_fetch_proc_p. (* to re-fold pb where it didn't reduce. *)
     simpl in *.
     rename heq_transl_proc_pb_c into h_tr_proc.
+    Tactic Notation "!destruct" constr(h) "!eqn:?" := (!!(destruct h eqn:?)).
+    Tactic Notation "!destruct" constr(h) "!eqn:" ident(id) :=
+      (!!(destruct h eqn:id; revert id));intro id.
     repeat match type of h_tr_proc with
            | (bind2 ?x _) = _  => destruct x as  [ [CE' stcksize]|] eqn:heq_bldCE; simpl in h_tr_proc; try discriminate
            | context [ ?x <=? ?y ]  => let heqq := fresh "heq" in destruct (Z.leb x y) eqn:heqq; try discriminate
-           | (bind ?y ?x) = _ => let heqq := fresh "heq" in destruct y eqn:heqq; [ autorename heqq; simpl in h_tr_proc | discriminate]
+           | (bind ?y ?x) = _ =>
+             let heqq := fresh "heq" in !destruct y !eqn:heqq; [ 
+                 match type of heqq with
+                 | transl_stmt _ _ _ = OK ?x => rename x into s_pbdy                   
+                 | init_locals _ _ _ = OK ?x => rename x into s_locvarinit
+                 | store_params _ _ _ = OK ?x => rename x into s_parms
+                 | copy_out_params _ _ _ = OK ?x => rename x into s_copyout
+                 | transl_lparameter_specification_to_procsig _ _ _ = OK ?x => rename x into p_sig
+                 | _ => idtac
+                 end
+                 ; autorename heqq; simpl in h_tr_proc
+               | discriminate]
            end.
-    destruct (transl_declaration st CE' (S lvl_p) procedure_declarative_part) eqn:heqq;[ autorename heqq;simpl in h_tr_proc|discriminate].
-    (* more or less whate functional inversion would have produced in one step *)
-    (* cleaning *)
-    rename c0 into newlfundef, s0 into bdy, s1 into locvarinit, s2 into initparams, s3 into chain_param, s4 into copyout.
-    map_hyps move_up_types all_hyps.
+    up_type.
     inversion h_tr_proc;clear h_tr_proc.
     subst c.
     simpl in heq.
     !invclear heq.
+    (* more or less whate functional inversion would have produced in one step *)
     (* CE' is the new CE built from CE and the called procedure parameters and local variables *)
     specialize (IHh_eval_stmt CE').
-    rewrite heq_transl_stmt_procedure_statements_s0 in IHh_eval_stmt.
-    specialize (IHh_eval_stmt bdy).
+    rewrite heq_transl_stmt_procedure_statements_s_pbdy in IHh_eval_stmt.
+    specialize (IHh_eval_stmt s_pbdy).
     assert (h_inv_CE':invariant_compile CE' st).
     { admit. (* TODO as a lemma. *) }
     specialize (IHh_eval_stmt h_inv_CE' eq_refl).
     assert (h_match_env_f1: ∃  (spb : Values.block) (ofs : int)(locenv : env) (g : genv) (m : mem),
                                match_env st (f1 :: suffix_s) CE' (Values.Vptr spb ofs) locenv g m).
     { admit. (* Property of eval_decl, to prove simultanously with the current leamm? *) }
-    !! decompose [ex] h_match_env_f1. clear h_match_env_f1.
-    specialize (IHh_eval_stmt _ _ func _ _ _ h_match_env0). (* func really? *)
-    !!decompose [ex and] IHh_eval_stmt. clear IHh_eval_stmt.
+    destruct h_match_env_f1 as [spb' [ofs' [locenv' [g' [m' h_match_env_f1]]]]].
+    specialize (IHh_eval_stmt _ _ func _ _ _ h_match_env_f1). (* func really? *)
+    destruct IHh_eval_stmt as [tr' [locenv'' [m'' [IHh_eval_stmt_1 IHh_eval_stmt_2]]]].
+    up_type.
+    (* FAUX: on n'a pas encore exécuté copy_out. *)
+    exists tr'.
+    exists locenv''.
+    exists m''.
+    split.
+    + constructor.
 
     (* TODO: deal with lvl_p = 0. *)
 
