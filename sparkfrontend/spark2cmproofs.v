@@ -2433,6 +2433,124 @@ Proof.
   eapply build_loads_Vptr;eauto.
 Qed.
 
+
+Ltac rename_transl_exprlist h th :=
+  match th with
+  | transl_exprlist _ _ ?x = Error _ => fresh "h_incr_order_fr_Err_" x
+  | transl_exprlist _ _ _ = Error _ => fresh "h_incr_order_fr_Err"
+  | transl_exprlist _ _ ?x = Some ?y => fresh "h_incr_order_fr_" x "_" y
+  | transl_exprlist _ _ ?x = Some _ => fresh "h_incr_order_fr_" x
+  | transl_exprlist _ _ _ = _ => fresh "h_incr_order_fr"
+  | _ => rename_hyp_incro h th
+  end.
+Ltac rename_hyp ::= rename_transl_exprlist.
+
+Opaque transl_expr.
+
+
+Lemma transl_copy_in_OK :
+  forall stbl s (*n*) prms args f fr fr',
+    copy_in stbl s fr prms args fr'
+(*      -> fr= newFrame n *)
+      -> fr' = Normal f
+     -> forall CE g sp locenv m bl,
+         match_env stbl s CE sp locenv g m
+         -> transl_exprlist stbl CE args = OK bl
+         (* vargs does not exists for Out parameters. TODO: restrict to In/In_Out parameters *)
+         -> ∃ vargs, eval_exprlist g sp locenv m bl vargs.
+(* + matching vargs <-> bl *)
+Proof.
+  !!(intros until 1).
+  !induction h_copy_in_fr_fr'; !intros;try discriminate;cbn in *.
+  - !inversion h_incr_order_fr.
+    subst.
+    exists (@nil Values.val).
+    constructor.
+  - !destruct (transl_expr st CE e) !eqn:?; try discriminate.
+     eapply transl_expr_ok in heq_tr_expr_e.
+     + !! (destruct heq_tr_expr_e as [v_t [ ? ?]]).
+       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
+       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
+       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
+       up_type.
+       exists (e_t_v :: vargs).
+       inversion h_incr_order_fr.
+       constructor;auto.
+       eauto.
+     + eassumption.
+     + assumption.
+  - !destruct (transl_expr st CE e) !eqn:?; try discriminate;cbn in *.
+     eapply transl_expr_ok in heq_tr_expr_e.
+     + !! (destruct heq_tr_expr_e as [v_t [ ? ?]]).
+       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
+       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
+       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
+       up_type.
+       exists (e_t_v :: vargs).
+       inversion h_incr_order_fr.
+       constructor;auto.
+       eauto.
+     + eassumption.
+     + assumption.
+  - !destruct (transl_expr st CE (E_Name ast_num n)) !eqn:?; try discriminate;cbn in *.
+     eapply transl_expr_ok in heq_tr_expr.
+     + !! (destruct heq_tr_expr as [v_t [ ? ?]]).
+       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
+       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
+       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
+       up_type.
+       exists (e_v :: vargs).
+       inversion h_incr_order_fr.
+       constructor;auto.
+       eauto.
+     + constructor.
+       eassumption.
+     + assumption.
+  - !destruct (transl_expr st CE (E_Name ast_num n)) !eqn:?; try discriminate;cbn in *.
+     eapply transl_expr_ok in heq_tr_expr.
+     + !! (destruct heq_tr_expr as [v_t [ ? ?]]).
+       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
+       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
+       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
+       up_type.
+       exists (e_v :: vargs).
+       inversion h_incr_order_fr.
+       constructor;auto.
+       eauto.
+     + constructor.
+       eassumption.
+     + assumption.
+  (* Out parameter, the variable is not evaluated at all, and may be undefined, on the spark side. In any case the value pushed is Undefined. *)
+  - !destruct (transl_expr st CE (E_Name ast_num n)) !eqn:?; try discriminate;cbn in *.
+(*      eapply transl_expr_ok in heq_tr_expr. *)
+(*      + !! (destruct heq_tr_expr as [? [ ? ?]]). *)
+       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
+       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
+       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
+       up_type.
+       exists (Values.Vundef :: vargs). (* No value exists fo Out parameters? *)
+       inversion h_incr_order_fr.
+       constructor;auto.
+       Transparent transl_expr.
+       cbn in heq_tr_expr.
+       destruct n;try discriminate.
+       !destruct (transl_variable st CE a i) !eqn:?; try discriminate.
+       !destruct (symboltable.fetch_exp_type a st) !eqn:?;try discriminate.
+    
+  
+  
+Qed.
+
+(* TODO:
+Lemma transl_decl_OK : 
+  eval_decl st s1 f (procedure_declarative_part pb) (Normal f1)
+  -> set_locals (fn_vars f) (set_params vargs (fn_params f)) = e.
+Proof.
+Qed.
+*)
+(* eval_funcall (ge : genv) : mem → fundef → list Values.val → Events.trace → mem → Values.val → Prop :=
+ *)
+
 Lemma transl_stmt_normal_OK : forall stbl (stm:statement) s s',
     eval_stmt stbl s stm (Normal s') ->
     forall CE (stm':Cminor.stmt),
@@ -2442,7 +2560,10 @@ Lemma transl_stmt_normal_OK : forall stbl (stm:statement) s s',
         match_env stbl s CE (Values.Vptr spb ofs) locenv g m ->
         exists tr locenv' m',
           Cminor.exec_stmt g f (Values.Vptr spb ofs) locenv m stm' tr locenv' m' Out_normal
-          /\  match_env stbl s' CE (Values.Vptr spb ofs) locenv' g m'.
+          /\  match_env stbl s' CE (Values.Vptr spb ofs) locenv' g m'
+with transl_fcall_normal_OK : forall ge m fd vargs t m' vres,
+    
+    eval_funcall ge m fd vargs t m' vres.
 Proof.
   intros until 1.
   remember (Normal s') as norms'.
@@ -2696,7 +2817,9 @@ Proof.
       (transl_stmt st CE (procedure_statements pb) =: stm) (at level 90).
 
     Notation "[ g , f , spb , ofs ] < m , locenv , stm > ===> < m' , locenv' , tr > " :=
-      (exec_stmt g f (Values.Vptr spb ofs) locenv m stm tr locenv' m' Out_normal) (at level 90).
+      (exec_stmt g f (Values.Vptr spb ofs) locenv m stm tr locenv' m' Out_normal)
+        (at level 90,
+         format  "[ g , f , spb , ofs ] '/ ' < m , locenv , stm > '/ '  ===>  '/ ' < m' , locenv' , tr > ").
 
 
     (* IDEA: prove a similar lemma simultaneaously on funcall, with a different invariant. *)
@@ -2762,6 +2885,13 @@ Proof.
     subst c.
     simpl in heq.
     !invclear heq.
+    match type of hfction with
+    | (_ = Some (AST.Internal ?f)) => set (the_proc := f) in *
+    end.
+    up_type.
+
+
+
     (* more or less whate functional inversion would have produced in one step *)
     (* CE' is the new CE built from CE and the called procedure parameters and local variables *)
     specialize (IHh_eval_stmt CE').
@@ -2770,6 +2900,51 @@ Proof.
     assert (h_inv_CE':invariant_compile CE' st).
     { admit. (* TODO as a lemma. *) }
     specialize (IHh_eval_stmt h_inv_CE' eq_refl).
+
+    destruct (Mem.alloc m 0 stcksize) as [m_alloc_p spb_alloc_p] eqn:h_alloc .
+    specialize (IHh_eval_stmt spb_alloc_p Int.zero the_proc).
+    
+    eexists.
+    eexists.
+    eexists.
+    split.
+    + eapply exec_Scall;try now (try eassumption;simpl;reflexivity).
+      * admit. (* property of eval_exprlist *)
+      * simpl.
+        unfold transl_procsig in heq_transl_procsig_p.
+        unfold symboltable.fetch_proc in h_fetch_proc_p.
+        rewrite h_fetch_proc_p in heq_transl_procsig_p.
+        destruct (transl_lparameter_specification_to_procsig st pb_lvl (language.procedure_parameter_profile pb)) eqn:h;try discriminate.
+        simpl in heq_transl_procsig_p.
+        inversion heq_transl_procsig_p. subst s0 pb_lvl.
+        rewrite heq_pb in h.
+        simpl in h.
+        rewrite h in heq2.
+        inversion heq2;auto.
+      * 
+        
+        eapply eval_funcall_internal;cbn.
+        -- eassumption.
+        -- shelve.
+        -- econstructor. (* Sseq init_part (rest) *)
+           ++ admit. (* lemma over intialization *)
+           ++ econstructor. (* rest ) Sseq bdy copyout *)
+              ** destruct (IHh_eval_stmt ?e1 g ?m1) as [tr' [locenv'' [m'' [IHh_eval_stmt_1 IHh_eval_stmt_2]]]].
+                 --- admit. (* lemma on match_env on pushing a new function env. *)
+                 --- admit. (* should be "eapply IHh_eval_stmt_1." when eexists are done after destruct (IHh_eval_stmt...) *)
+                eapply 
+           ++ admit.
+        -- admit.
+        -- admit.
+    + admit.
+
+
+
+    assert (h_match_env_f1: ∃  (spb : Values.block) (ofs : int)(locenv : env) (g : genv) (m : mem),
+                               ).
+    { admit. (* Property of eval_decl, to prove simultanously with the current leamm? *) }
+
+
     assert (h_match_env_f1: ∃  (spb : Values.block) (ofs : int)(locenv : env) (g : genv) (m : mem),
                                match_env st (f1 :: suffix_s) CE' (Values.Vptr spb ofs) locenv g m).
     { admit. (* Property of eval_decl, to prove simultanously with the current leamm? *) }
@@ -2777,6 +2952,7 @@ Proof.
     specialize (IHh_eval_stmt _ _ func _ _ _ h_match_env_f1). (* func really? *)
     destruct IHh_eval_stmt as [tr' [locenv'' [m'' [IHh_eval_stmt_1 IHh_eval_stmt_2]]]].
     up_type.
+    assert (h_copy_out: ∃ (spb : Values.block) (ofs : int)(locenv : env) (g : genv) (m : mem),).
     (* FAUX: on n'a pas encore exécuté copy_out. *)
     exists tr'.
     exists locenv''.
