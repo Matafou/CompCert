@@ -750,7 +750,7 @@ Fixpoint build_proc_decl (lvl:Symbol_Table_Module.level)
      2) All variables have unique names,
 
     this is correct. *)
-Fixpoint build_compilenv (stbl:symboltable) (enclosingCE:compilenv) (lvl:Symbol_Table_Module.level)
+Definition build_compilenv (stbl:symboltable) (enclosingCE:compilenv) (lvl:Symbol_Table_Module.level)
          (lparams:list parameter_specification) (decl:declaration) : res (compilenv*Z) :=
   let '(init,sz) := match lvl with
                 | O => (nil,0%Z) (* no chaining for global procedures *)
