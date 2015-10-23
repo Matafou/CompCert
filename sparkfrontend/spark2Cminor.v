@@ -752,14 +752,14 @@ Fixpoint build_proc_decl (lvl:Symbol_Table_Module.level)
     this is correct. *)
 Definition build_compilenv (stbl:symboltable) (enclosingCE:compilenv) (lvl:Symbol_Table_Module.level)
          (lparams:list parameter_specification) (decl:declaration) : res (compilenv*Z) :=
-  let '(init,sz) := match lvl with
+  let stoszchainparam := match lvl with
                 | O => (nil,0%Z) (* no chaining for global procedures *)
                 | _ => (((0%nat,0%Z) :: nil),4%Z)
               end in
-  do stosz <- build_frame_lparams stbl (init, sz) lparams ;
-  do (sto2,sz2) <- build_frame_decl stbl stosz decl ;
+  do stoszparam <- build_frame_lparams stbl stoszchainparam lparams ;
+  do (stolocals,szlocals) <- build_frame_decl stbl stoszparam decl ;
   let scope_lvl := List.length enclosingCE in
-  OK (((scope_lvl,sto2)::enclosingCE),sz2).
+  OK (((scope_lvl,stolocals)::enclosingCE),szlocals).
 
 
 (** * Translating a procedure declaration

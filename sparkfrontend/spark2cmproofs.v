@@ -2470,7 +2470,7 @@ Ltac rename_hyp ::= rename_transl_exprlist.
            in order to be able to have there cminor address. Once the
            prelude of the function is executed, all variables are in
            the stack as standard variables. *)
-
+(*
 Section is_copy.
   Variables (stbl : symboltable) (CE : compilenv)   (g : genv) (sp : Values.val) (locenv : env) (m : mem) (s : stack).
 
@@ -2481,302 +2481,29 @@ Section is_copy.
       of a function having lprm as parameter list. That is: the value of the
       argument when In, its address otherwise (with the correct value at the
       address when In_Out).  *)
-  Inductive is_copy_in: list expression -> list parameter_specification -> list Values.val -> Prop :=
-  | Is_copy_in_nil: is_copy_in nil nil nil
-  | Is_copy_in_In: ∀ e le prm lprm v v_t lv_t,
+
+  Inductive is_copy_in: list expression -> list parameter_specification -> store -> list Values.val -> Prop :=
+  | Is_copy_in_nil: forall sto, is_copy_in nil nil sto nil
+  | Is_copy_in_In: ∀ e le prm lprm v sto sto' v_t lv_t,
       parameter_mode prm = In ->
       eval_expr stbl s e (Normal v) ->
       transl_value v v_t ->
-      is_copy_in  le lprm lv_t ->
-      is_copy_in (e::le) (prm::lprm) (v_t::lv_t)
-  | Is_copy_in_In_Out: ∀ astnum le prm lprm nme v addr_t v_t nme_t lv_t,
+      is_copy_in le lprm (store_of sto) lv_t ->
+      push sto (parameter_name prm) v = sto' ->
+      is_copy_in (e::le) (prm::lprm) (store_of sto') (v_t::lv_t)
+  | Is_copy_in_In_Out: ∀ ast_num nme le prm lprm v nme_t addr sto v_t lv_t,
       parameter_mode prm = In_Out ->
-      transl_name stbl CE nme = OK nme_t -> (* nme_t is the expresion denoting the address where nme is stored in Cminor *)
-      eval_expr stbl s (E_Name astnum nme) (Normal v) -> (* addr is the evaluated variable in spark *)
-      Cminor.eval_expr g sp locenv m nme_t addr_t  -> (* v_t is the address in Cminor *)
-      Cminor.eval_expr g sp locenv m (Eload AST.Mint32 nme_t) v_t  -> (* v_t is the value at address in CMinor *)
+      eval_name stbl s nme (Normal v) ->
       transl_value v v_t ->
-      is_copy_in le lprm lv_t -> 
-      is_copy_in (E_Name astnum nme::le) (prm::lprm) (addr_t::lv_t)
-  | Is_copy_in_Out: ∀ astnum le prm lprm nme v v_t nme_t lv_t,
-      parameter_mode prm = Out ->
-      transl_name stbl CE nme = OK nme_t -> (* nme_t is the expresion denoting the address where nme is stored in Cminor *)
-      eval_expr stbl s (E_Name astnum nme) (Normal v) -> (* addr is the evaluated variable *)
-      Cminor.eval_expr g sp locenv m (Eload AST.Mint32 nme_t) v_t  -> (* v_t is the value at address addr *)
-      transl_value v v_t -> (* This is not needed since Out variables wont be read before being written *)
-      is_copy_in le lprm lv_t -> 
-      is_copy_in (E_Name astnum nme::le) (prm::lprm) (v_t::lv_t).
+      transl_name stbl CE nme = OK nme_t ->
+      Cminor.eval_expr g sp locenv m nme_t addr -> (* v_t is the value at address addr *)
+      Mem.loadv AST.Mint32 m addr = Some v_t ->
+      is_copy_in le lprm sto lv_t ->
+      is_copy_in (E_Name ast_num nme ::le) (prm::lprm) ((parameter_name prm , v)::sto) (addr::lv_t).
+(* TODO: Out parameters *)
 
 End is_copy.
-
-Lemma transl_copy_in_OK :
-  forall stbl s (*n*) prms args f fr fr',
-    copy_in stbl s fr prms args fr'
-    -> fr' = Normal f
-     -> forall CE g sp locenv m bl lv,
-         match_env stbl s CE sp locenv g m
-         -> transl_paramexprlist stbl CE args prms = OK bl
-         -> eval_exprlist g sp locenv m bl lv
-         -> is_copy_in stbl CE g sp locenv m s args prms lv.
-(* + matching vargs <-> bl *)
-Proof.
-  !!(intros until 1).
-(*   unfold transl_paramexprlist. *)
-  !induction h_copy_in_fr_fr'; !intros;try (discriminate);cbn in *.
-  - !inversion h_trans_prmexprl.
-    !inversion h_eval_exprlist.
-    constructor.
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_expr st CE e) !eqn:?; try discriminate;cbn in *.
-    !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-    !invclear h_trans_prmexprl.
-    up_type.
-    !inversion h_eval_exprlist.
-    econstructor;eauto.
-    !destruct (transl_expr_ok _ _ _ _ heq_tr_expr_e _ _ _ _ _ _ h_eval_expr_e_e_v h_match_env). 
-    !destruct h_and.
-    erewrite det_eval_expr with (v:=e_t_v) (v' := x);eauto.
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_expr st CE e) !eqn:?; try discriminate;cbn in *.
-    !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-    !invclear h_trans_prmexprl.
-    up_type.
-    !inversion h_eval_exprlist.
-    econstructor;eauto.
-    !destruct (transl_expr_ok _ _ _ _ heq_tr_expr_e _ _ _ _ _ _ h_eval_expr_e h_match_env). 
-    !destruct h_and.
-    erewrite det_eval_expr with (v:=e_t_v) (v' := x);eauto.
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_name st CE n) !eqn:?; try discriminate;cbn in *.    
-    !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-    !invclear h_trans_prmexprl.
-    up_type.
-    !inversion h_eval_exprlist.
-    econstructor 3;eauto 2. (* rec hyp used *)
-    + econstructor.
-      eassumption.
-    + econstructor;eauto.
-      generalize(h_match_env.(me_stack_complete));eauto.
-
-      xxxxxxxxxxxxxxx
-
-Lemma transl_copy_in_OK :
-  forall stbl s (*n*) prms args f fr fr',
-    copy_in stbl s fr prms args fr'
-(*      -> fr= newFrame n *)
-      -> fr' = Normal f
-     -> forall CE g sp locenv m bl,
-         match_env stbl s CE sp locenv g m
-         -> transl_paramexprlist stbl CE args prms = OK bl
-         (* vargs does not exists for Out parameters. TODO: restrict to In/In_Out parameters *)
-         -> ∃ vargs, eval_exprlist g sp locenv m bl vargs.
-(* + matching vargs <-> bl *)
-Proof.
-  !!(intros until 1).
-(*   unfold transl_paramexprlist. *)
-  !induction h_copy_in_fr_fr'; !intros;try (discriminate);cbn in *.
-  - !inversion h_trans_prmexprl.
-    exists (@nil Values.val).
-    constructor.
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_expr st CE e) !eqn:?; try discriminate.
-     eapply transl_expr_ok in heq_tr_expr_e.
-     + !! (destruct heq_tr_expr_e as [v_t [ ? ?]]).
-       cbn in h_trans_prmexprl.
-       !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_trans_prmexprl0).
-       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-       up_type.
-       exists (e_t_v :: vargs).
-       inversion h_trans_prmexprl.
-       constructor;auto.
-       eauto.
-     + eassumption.
-     + assumption.
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_expr st CE e) !eqn:?; try discriminate.
-     eapply transl_expr_ok in heq_tr_expr_e.
-     + !! (destruct heq_tr_expr_e as [v_t [ ? ?]]).
-       cbn in h_trans_prmexprl.
-       !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_trans_prmexprl0).
-       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-       up_type.
-       exists (e_t_v :: vargs).
-       inversion h_trans_prmexprl.
-       constructor;auto.
-       eauto.
-     + eassumption.
-     + assumption.   
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_name st CE n) !eqn:?; try discriminate;cbn in *.    
-    !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-    !invclear h_trans_prmexprl. 
-    specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_trans_prmexprl0).
-    destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-    up_type.
-    !assert (exists n_t_v, transl_value v n_t_v ∧ Cminor.eval_expr g sp locenv m n_t n_t_v).
-    {  assert (h_ex_typ:exists (typ_nme:type) cm_typ_nme,
-                  (type_of_name st n =: typ_nme)
-                  ∧ (transl_type st typ_nme =: cm_typ_nme)
-                  ∧ (make_load n_t cm_typ_nme =: n_t)).
-       { admit. (* well formedness/typedness *) }  
-       decompose [ex and] h_ex_typ.
-       eapply (h_match_env.(me_stack_match));eauto. }
-    decomp h_ex.
-    exists (n_t_v::vargs);constructor;auto.
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_name st CE n) !eqn:?; try discriminate;cbn in *.    
-    !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-    !invclear h_trans_prmexprl. 
-    specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_trans_prmexprl0).
-    destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-    up_type.
-    !assert (exists n_t_v, transl_value (Int v) n_t_v ∧ Cminor.eval_expr g sp locenv m n_t n_t_v).
-    {  assert (h_ex_typ:exists (typ_nme:type) cm_typ_nme,
-                  (type_of_name st n =: typ_nme)
-                  ∧ (transl_type st typ_nme =: cm_typ_nme)
-                  ∧ (make_load n_t cm_typ_nme =: n_t)).
-       { (* useful?: (h:stbl_var_types_ok st). consequence of invariant_compile CE *)
-         admit. (* well formedness/typedness *) }  
-       decompose [ex and] h_ex_typ.
-       eapply (h_match_env.(me_stack_match));eauto. }
-    decomp h_ex.
-    exists (n_t_v::vargs);constructor;auto.
-  - rewrite heq in h_trans_prmexprl.
-    !destruct (transl_name st CE n) !eqn:?; try discriminate;cbn in *.    
-    !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-    !invclear h_trans_prmexprl. 
-    specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_trans_prmexprl0).
-    destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-    up_type.
-
-    !assert (exists n_t_v,Cminor.eval_expr g sp locenv m n_t n_t_v).
-    {  assert (h_ex_typ:exists (typ_nme:type) cm_typ_nme,
-                  (type_of_name st n =: typ_nme)
-                  ∧ (transl_type st typ_nme =: cm_typ_nme)
-                  ∧ (make_load n_t cm_typ_nme =: n_t)).
-       {
-         admit. (* well formedness/typedness *) }  
-       decompose [ex and] h_ex_typ.
-       eapply (h_match_env.(me_stack_match));eauto. }
-    decomp h_ex.
-    exists (n_t_v::vargs);constructor;auto.
-  -
-
-
-
-    
-
-    unfold stack_match in h_stk_mtch_s_m.
-    specialize (h_stk_mtch_s_m n v n_t).
-    destruct (type_of_name st n) eqn:heq_typ_n;cbn in h_stk_mtch_s_m.
-    + destruct (transl_type st t) eqn:heq_tr_typ_t.
-      * destruct (make_load n_t t0) eqn:heq_mkload_t0.
-        specialize (h_stk_mtch_s_m  e t t0 h_eval_name_n_v eq_refl heq_transl_name heq_tr_typ_t heq_mkload_t0) .
-        !! destruct h_stk_mtch_s_m as [v_t [? ?]].
-        !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-        specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_trans_prmexprl0).
-        destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-        up_type.
-        exists (e_v::vargs).
-        inversion h_trans_prmexprl.
-        subst bl.
-        constructor;auto.
-        eauto.
-      * eassumption.
-      * assumption.
-
-)
-
-
-
-     eapply transl_name_ok in heq_transl_name.
-     + !! (destruct heq_tr_expr_e as [v_t [ ? ?]]).
-       cbn in h_trans_prmexprl.
-       !destruct (transl_paramexprlist st CE le lparam) !eqn:?; try discriminate;cbn in *.
-       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_trans_prmexprl0).
-       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-       up_type.
-       exists (e_t_v :: vargs).
-       inversion h_trans_prmexprl.
-       constructor;auto.
-       eauto.
-     + eassumption.
-     + assumption.
-
-  - !destruct (transl_expr st CE e) !eqn:?; try discriminate;cbn in *.
-     eapply transl_expr_ok in heq_tr_expr_e.
-     + !! (destruct heq_tr_expr_e as [v_t [ ? ?]]).
-       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
-       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
-       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-       up_type.
-       exists (e_t_v :: vargs).
-       inversion h_incr_order_fr.
-       constructor;auto.
-       eauto.
-     + eassumption.
-     + assumption.
-  - !destruct (transl_expr st CE (E_Name ast_num n)) !eqn:?; try discriminate;cbn in *.
-     eapply transl_expr_ok in heq_tr_expr.
-     + !! (destruct heq_tr_expr as [v_t [ ? ?]]).
-       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
-       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
-       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-       up_type.
-       exists (e_v :: vargs).
-       inversion h_incr_order_fr.
-       constructor;auto.
-       eauto.
-     + constructor.
-       eassumption.
-     + assumption.
-  - !destruct (transl_expr st CE (E_Name ast_num n)) !eqn:?; try discriminate;cbn in *.
-     eapply transl_expr_ok in heq_tr_expr.
-     + !! (destruct heq_tr_expr as [v_t [ ? ?]]).
-       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
-       specialize (IHh_copy_in_fr_fr' heq_f'' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
-       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-       up_type.
-       exists (e_v :: vargs).
-       inversion h_incr_order_fr.
-       constructor;auto.
-       eauto.
-     + constructor.
-       eassumption.
-     + assumption.
-  (* Out parameter, the variable is not evaluated at all, and may be undefined, on the spark side. In any case the value pushed is Undefined. *)
-  - specialize (IHh_copy_in_fr_fr' heq_f'').
-    !destruct (transl_expr st CE (E_Name ast_num n)) !eqn:?; try discriminate;cbn in *.
-(*      eapply transl_expr_ok in heq_tr_expr. *)
-(*      + !! (destruct heq_tr_expr as [? [ ? ?]]). *)
-       !destruct (transl_exprlist st CE le) !eqn:?; try discriminate;cbn in *.
-       specialize (IHh_copy_in_fr_fr' _ _ _ _ _ _ h_match_env h_incr_order_fr0).
-       destruct IHh_copy_in_fr_fr' as [vargs IHh_copy_in_fr_fr'].
-       up_type.
-       exists (Values.Vundef :: vargs). (* No value exists fo Out parameters? *)
-       inversion h_incr_order_fr.
-       constructor;auto.
-       Transparent transl_expr.
-       cbn in heq_tr_expr.
-       destruct n;try discriminate.
-       !destruct (transl_variable st CE a i) !eqn:?; try discriminate.
-       !destruct (symboltable.fetch_exp_type a st) !eqn:?;try discriminate.
-    
-  
-  
-Qed.
-
-(* TODO:
-Lemma transl_decl_OK : 
-  eval_decl st s1 f (procedure_declarative_part pb) (Normal f1)
-  -> set_locals (fn_vars f) (set_params vargs (fn_params f)) = e.
-Proof.
-Qed.
 *)
-(* eval_funcall (ge : genv) : mem → fundef → list Values.val → Events.trace → mem → Values.val → Prop :=
- *)
 
 Lemma transl_stmt_normal_OK : forall stbl (stm:statement) s s',
     eval_stmt stbl s stm (Normal s') ->
@@ -2787,10 +2514,10 @@ Lemma transl_stmt_normal_OK : forall stbl (stm:statement) s s',
         match_env stbl s CE (Values.Vptr spb ofs) locenv g m ->
         exists tr locenv' m',
           Cminor.exec_stmt g f (Values.Vptr spb ofs) locenv m stm' tr locenv' m' Out_normal
-          /\  match_env stbl s' CE (Values.Vptr spb ofs) locenv' g m'
-with transl_fcall_normal_OK : forall ge m fd vargs t m' vres,
-    
-    eval_funcall ge m fd vargs t m' vres.
+          /\  match_env stbl s' CE (Values.Vptr spb ofs) locenv' g m'.
+(*with transl_fcall_normal_OK : forall ge m fd vargs t m' vres,
+    ...
+    eval_funcall ge m fd vargs t m' vres.*)
 Proof.
   intros until 1.
   remember (Normal s') as norms'.
@@ -3116,10 +2843,16 @@ Proof.
     | (_ = Some (AST.Internal ?f)) => set (the_proc := f) in *
     end.
     up_type.
+    unfold build_compilenv in heq_bldCE.
+    pose (CE1 := match lvl_p with
+                            | 0%nat => (nil, 0)
+                            | S _ => ((0%nat, 0)::nil , 4)
+                            end ).
+    fold CE1 in heq_bldCE.
+     pose (CE2 :=  ).
 
 
-
-    (* more or less whate functional inversion would have produced in one step *)
+    (* more or less what functional inversion would have produced in one step *)
     (* CE' is the new CE built from CE and the called procedure parameters and local variables *)
     specialize (IHh_eval_stmt CE').
     rewrite heq_transl_stmt_procedure_statements_s_pbdy in IHh_eval_stmt.
