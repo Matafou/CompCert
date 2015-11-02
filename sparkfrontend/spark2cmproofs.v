@@ -2770,10 +2770,30 @@ Proof.
     (* On Cminor side, the function to be called is an expression that
        evaluates correctly to something. Consequence of Well-typedness+invariant? *)
 
-    assert (h_ex_paddr:exists paddr,
-               Cminor.eval_expr g (Values.Vptr spb ofs) locenv m
-                                (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) paddr).
-    { admit. }
+    assert (h_ex_paddr:
+              symboltable.fetch_proc p st = Some (pb_lvl, pb) (* p exists in st *)
+              -> exists paddr, (* then there we can compute its address in Cminor. *)
+                  Cminor.eval_expr g (Values.Vptr spb ofs) locenv m
+                                   (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) paddr).
+
+xxxxx
+(* TODO, at this as a new part of the invariant: we have translated
+all procedures of stbl, and they have all an address pointing to there
+translation *)
+Definition stack_match_functions st CE locenv g m stckptr :=
+  forall p pb_lvl pb lglobdef pnum f,
+    symboltable.fetch_proc p st = Some (pb_lvl, pb) (* p exists in st *)
+    -> transl_procedure st CE pb_lvl pb =: (pnum,@AST.Gfun _ _ f) :: lglobdef (*  *)
+    -> exists paddr fction, (* then there we can compute its address in Cminor. *)
+        Cminor.eval_expr g stckptr locenv m
+                         (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) paddr
+        ∧ Globalenvs.Genv.find_funct g paddr = Some fction
+        ∧ f = fction.
+
+
+
+    { 
+      admit. }
     destruct h_ex_paddr as [paddr hpaddr].
     (* The value obtained for the function to call is indeed the
     address of a function. Well-typedness+invariant? *)
