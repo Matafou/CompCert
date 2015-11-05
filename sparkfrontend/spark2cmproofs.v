@@ -893,6 +893,18 @@ Definition stack_match st s CE sp locenv g m :=
       (transl_value v v_t /\
        Cminor.eval_expr g sp locenv m load_addr_nme v_t).
 
+(* We have translated all procedures of stbl, and they have all an address
+   pointing to there translation *)
+Definition stack_match_functions st stckptr CE locenv g m :=
+  forall p pb_lvl pb,
+    symboltable.fetch_proc p st = Some (pb_lvl, pb) (* p exists in st *)
+    -> exists paddr pnum fction lglobdef, (* then there we can compute its address in Cminor. *)
+      transl_procedure st CE pb_lvl pb = OK ((pnum,@AST.Gfun _ _ fction) :: lglobdef) (*  *)
+      ∧ Cminor.eval_expr g stckptr locenv m
+                         (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) paddr
+      ∧ Globalenvs.Genv.find_funct g paddr = Some fction.
+
+
 (* Variable addresses are all disjoint *)
 Definition stack_separate st CE sp locenv g m :=
   forall nme nme' addr_nme addr_nme'
@@ -966,6 +978,7 @@ Definition stbl_var_types_ok st :=
 Record match_env st s CE sp locenv g m: Prop :=
   mk_match_env {
       me_stack_match: stack_match st s CE sp locenv g m;
+      me_stack_match_functions: stack_match_functions st sp CE locenv g m ;
       me_stack_complete: stack_complete st s CE;
       me_stack_separate: stack_separate st CE sp locenv g m;
       me_stack_localstack_aligned: stack_localstack_aligned locenv g m;
@@ -975,6 +988,7 @@ Record match_env st s CE sp locenv g m: Prop :=
     }.
 
 Arguments me_stack_match : default implicits.
+Arguments me_stack_match_functions : default implicits.
 Arguments me_overflow : default implicits.
 Arguments me_stack_no_null_offset : default implicits.
 Arguments me_stack_localstack_aligned : default implicits.
@@ -997,7 +1011,7 @@ Arguments ci_no_overflow : default implicits.
 Arguments ci_stbl_var_types_ok : default implicits.
 
 Hint Resolve ci_increasing_lvls ci_increasing_ids ci_no_overflow ci_stbl_var_types_ok.
-Hint Resolve me_stack_match me_stack_complete me_stack_separate me_stack_localstack_aligned me_stack_no_null_offset me_overflow.
+Hint Resolve me_stack_match me_stack_match_functions me_stack_complete me_stack_separate me_stack_localstack_aligned me_stack_no_null_offset me_overflow.
 
 
 (** Hypothesis renaming stuff *)
@@ -1006,6 +1020,7 @@ Ltac rename_hyp3 h th :=
   | match_env _ _ _ _ _ _ _ => fresh "h_match_env"
   | stack_match _ ?s _ _ _ _ ?m => fresh "h_stk_mtch_" s "_" m
   | stack_match _ _ _ _ _ _ _ => fresh "h_stk_mtch"
+  | stack_match_functions _ _ _ _ _ _ => fresh "h_stk_mtch_fun"
   | stack_complete _ ?s ?CE => fresh "h_stk_cmpl_" s "_" CE
   | stack_complete _ ?s _ => fresh "h_stk_cmpl_" s
   | stack_complete _ _ _ => fresh "h_stk_cmpl"
@@ -2198,6 +2213,42 @@ Proof.
   eauto.
 Qed.
 
+Lemma assignment_preserve_stack_match_function :
+  forall stbl CE g locenv stkptr s m a chk id id_t e_v e_t_v idaddr s' m' ,
+    increasing_orderG CE ->
+    all_frm_increasing CE ->
+    (* translating the variabe to a Cminor load address *)
+    transl_variable stbl CE a id = OK id_t ->
+    (* translating the value, we may need a overflow hypothesis on e_v/e_t_v *)
+    transl_value e_v e_t_v ->
+    (* Evaluating var address in Cminor *)
+    Cminor.eval_expr g stkptr locenv m id_t idaddr ->
+    (* Size of variable in Cminor memorry *)
+    compute_chnk stbl (E_Identifier a id) = OK chk ->
+    (* the two storing operation maintain match_env *)
+    storeUpdate stbl s (E_Identifier a id) e_v (Normal s') ->
+    Mem.storev chk m idaddr e_t_v = Some m' ->
+    match_env stbl s CE stkptr locenv g m ->
+    stack_match_functions stbl stkptr CE locenv g m'.
+Proof.
+  !intros.
+  red.
+  !intros.
+  !destruct h_match_env.
+  up_type.
+  red in h_stk_mtch_fun.
+  specialize (h_stk_mtch_fun p pb_lvl pb h_fetch_proc_p).
+  !! destruct h_stk_mtch_fun as [paddr [pnum [fction [lglobdef [? [? ?]]]]]].
+  exists paddr.
+  exists pnum.
+  exists fction.
+  exists lglobdef.
+  split;[|split];subst;eauto.
+  inversion h_CM_eval_expr_paddr.
+  constructor.
+  assumption.
+Qed.
+
 Lemma assignment_preserve_stack_complete :
   forall stbl CE g locenv stkptr s m a chk id id_t e_v e_t_v idaddr s' m' ,
     (* translating the variabe to a Cminor load address *)
@@ -2369,7 +2420,9 @@ Qed.
 
 
 Hint Resolve
-     assignment_preserve_stack_match assignment_preserve_stack_complete
+     assignment_preserve_stack_match
+     assignment_preserve_stack_match_function
+     assignment_preserve_stack_complete
      assignment_preserve_stack_separate assignment_preserve_loads_offset_non_null
      assignment_preserve_stack_no_null_offset assignment_preserve_stack_safe
      assignment_preserve_stack_freeable.
@@ -2767,55 +2820,15 @@ Proof.
     eq_same_clear.
     up_type.
 
-    (* On Cminor side, the function to be called is an expression that
-       evaluates correctly to something. Consequence of Well-typedness+invariant? *)
+    (* using the invariant to state that the procedure do
+       translate to an address containing the translated code.  *)
+    generalize (me_stack_match_functions h_match_env).
+    !intro .
+    red in h_stk_mtch_fun.
+    specialize (h_stk_mtch_fun _ _ _ h_fetch_proc_p).
+    !!destruct h_stk_mtch_fun as [paddr [pnum [fction [lglobdef [? [? ?]]]]] ].
+    up_type.
 
-    assert (h_ex_paddr:
-              symboltable.fetch_proc p st = Some (pb_lvl, pb) (* p exists in st *)
-              -> exists paddr, (* then there we can compute its address in Cminor. *)
-                  Cminor.eval_expr g (Values.Vptr spb ofs) locenv m
-                                   (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) paddr).
-
-xxxxx
-(* TODO, at this as a new part of the invariant: we have translated
-all procedures of stbl, and they have all an address pointing to there
-translation *)
-Definition stack_match_functions st CE locenv g m stckptr :=
-  forall p pb_lvl pb lglobdef pnum f,
-    symboltable.fetch_proc p st = Some (pb_lvl, pb) (* p exists in st *)
-    -> transl_procedure st CE pb_lvl pb =: (pnum,@AST.Gfun _ _ f) :: lglobdef (*  *)
-    -> exists paddr fction, (* then there we can compute its address in Cminor. *)
-        Cminor.eval_expr g stckptr locenv m
-                         (Econst (Oaddrsymbol (transl_procid p) (Int.repr 0))) paddr
-        ∧ Globalenvs.Genv.find_funct g paddr = Some fction
-        ∧ f = fction.
-
-
-
-    { 
-      admit. }
-    destruct h_ex_paddr as [paddr hpaddr].
-    (* The value obtained for the function to call is indeed the
-    address of a function. Well-typedness+invariant? *)
-    assert (h:exists fction , Globalenvs.Genv.find_funct g paddr = Some fction).
-    { admit. }
-    destruct h as [fction hfction].
-    (* translate_procedure should not fail on pb since compilation of the
-       whole should not have fail (we have to state that, how?). Moreover
-       the currently proved property holds for the translation of pb. *)
-    assert ((do p_t <- transl_procedure st CE lvl_p pb ;
-              match List.hd_error p_t with
-                Some (_,@AST.Gfun _ _ f) => OK f
-              | Some (_, AST.Gvar _) => Error (msg "procedure translated as a variable (??)")
-              | _ => Error (msg "procedure not translated (??)")
-              end) = OK fction).
-    { admit. }
-    destruct (transl_procedure st CE lvl_p pb) eqn:h;try discriminate.
-    autorename h.
-    simpl in H.
-    destruct (hd_error c) as [ [v [ ft | vn ]] |] eqn:h;simpl in H; autorename h; autorename H;try discriminate.
-
-    inversion heq0;subst ft;clear heq0.
     (* Core of the proof, link the different phase of execution with
        the pieces of code built by transl_procedure (in h_tr_proc). *)
     (* ideally functional inversion here would be great but it fails, bug(s) reported *)
@@ -2825,7 +2838,7 @@ Definition stack_match_functions st CE locenv g m stckptr :=
     destruct pb eqn:heq_pb;eq_same_clear.
     rewrite <- ?heq_pb in h_fetch_proc_p. (* to re-fold pb where it didn't reduce. *)
     simpl in *.
-    rename heq_transl_proc_pb_c into h_tr_proc.
+    rename heq_transl_proc_pb into h_tr_proc.
     repeat match type of h_tr_proc with
            | (bind2 ?x _) = _  => destruct x as  [ [CE' stcksize]|] eqn:heq_bldCE; simpl in h_tr_proc; try discriminate
            | context [ ?x <=? ?y ]  => let heqq := fresh "heq" in destruct (Z.leb x y) eqn:heqq; try discriminate
@@ -2843,11 +2856,10 @@ Definition stack_match_functions st CE locenv g m stckptr :=
                | discriminate]
            end.
     up_type.
-    inversion h_tr_proc;clear h_tr_proc.
-    subst c.
+    !inversion h_tr_proc;clear h_tr_proc.
     simpl in heq.
     !invclear heq.
-    match type of hfction with
+    match type of heq with
     | (_ = Some (AST.Internal ?f)) => set (the_proc := f) in *
     end.
     up_type.
@@ -2857,9 +2869,13 @@ Definition stack_match_functions st CE locenv g m stckptr :=
     specialize (IHh_eval_stmt CE').
     rewrite heq_transl_stmt_procedure_statements_s_pbdy in IHh_eval_stmt.
     specialize (IHh_eval_stmt s_pbdy).
-    assert (h_inv_CE':invariant_compile CE' st).
+    assert (h_inv_CE':
+              forall st CE pb_lvl prmprof pdeclpart,
+                invariant_compile CE st -> 
+                build_compilenv st CE pb_lvl prmprof pdeclpart =: (CE', stcksize)
+                -> invariant_compile CE' st).
     { admit. (* TODO as a lemma. Only about CE stbl and CE'. *) }
-    specialize (IHh_eval_stmt h_inv_CE' eq_refl).
+    specialize (IHh_eval_stmt (h_inv_CE' _ _ _ _ _ h_inv_comp_CE_st heq_bldCE) eq_refl).
 
     (* rewrite <- build_compilenv_ok in heq_bldCE.
        functional inversion heq_bldCE;subst;try discriminate. *)
