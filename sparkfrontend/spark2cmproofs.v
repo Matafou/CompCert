@@ -2591,11 +2591,11 @@ Qed.
 
 
 
-Lemma build_frame_lparams_preserve_no_overflow: ∀ st prmprof l sz lvl l' sz',
+Lemma build_frame_lparams_preserve_no_overflow_pos_addr: ∀ st prmprof l sz lvl l' sz',
     sz >= 0
     -> build_frame_lparams st (l,sz) prmprof =: (l',sz')
     -> all_addr_no_overflow_localframe (lvl, l)
-    -> all_addr_no_overflow_localframe (lvl, l').
+    -> all_addr_no_overflow_localframe (lvl, l') ∧ sz' >= 0.
 Proof.
   intros until sz.
   remember (l, sz) as locfrmZ. 
@@ -2603,7 +2603,7 @@ Proof.
   rewrite <- build_frame_lparams_ok.
   !functional induction (build_frame_lparams_2 st locfrmZ prmprof);!intros;subst;try discriminate.
   - !invclear heq.
-    assumption.
+    split;assumption.
   - rewrite -> build_frame_lparams_ok in *.
     rewrite <- add_to_frame_ok in heq_add_to_fr_nme.
     !functional inversion heq_add_to_fr_nme;subst.
@@ -2632,7 +2632,27 @@ Proof.
       eassumption.
 Qed.
 
-Lemma build_frame_decl_preserve_no_overflow: ∀ st decl l sz lvl l' sz',
+Lemma build_frame_lparams_preserve_no_overflow: ∀ st prmprof l sz lvl l' sz',
+    sz >= 0
+    -> build_frame_lparams st (l,sz) prmprof =: (l',sz')
+    -> all_addr_no_overflow_localframe (lvl, l)
+    -> all_addr_no_overflow_localframe (lvl, l').
+Proof.
+  intros st prmprof l sz lvl l' sz' H H0 H1.
+  edestruct build_frame_lparams_preserve_no_overflow_pos_addr;eauto.
+Qed.
+
+Lemma build_frame_lparams_preserve_pos_addr: ∀ st prmprof l sz lvl l' sz',
+    sz >= 0
+    -> build_frame_lparams st (l,sz) prmprof =: (l',sz')
+    -> all_addr_no_overflow_localframe (lvl, l)
+    -> sz' >= 0.
+  intros st prmprof l sz lvl l' sz' H H0 H1.
+  edestruct build_frame_lparams_preserve_no_overflow_pos_addr;eauto.
+Qed.
+
+
+Lemma build_frame_decl_preserve_no_overflow_pos_addr: ∀ st decl l sz lvl l' sz',
     sz >= 0
     -> build_frame_decl st (l,sz) decl =: (l',sz')
     -> all_addr_no_overflow_localframe (lvl, l)
@@ -2642,7 +2662,8 @@ Proof.
   remember (l, sz) as locfrmZ.
   revert l sz HeqlocfrmZ .
   rewrite <- build_frame_decl_ok.
-  !functional induction (build_frame_decl_2 st locfrmZ decl);!intros;subst;try discriminate.
+  !functional induction (build_frame_decl_2 st locfrmZ decl);!intros;subst;try discriminate
+  ; try rewrite -> build_frame_decl_ok in *.
   - split.
     + !invclear heq.
       !invclear heq0.
@@ -2685,12 +2706,43 @@ Proof.
     split.
     + destruct IHr as [IHr1 IHr2].
       eapply IHr0;eauto.
-    + xxx
-    
-      * admit.
-      * eauto.
-      * eapply IHr;eauto.    
+    + destruct IHr as [IHr1 IHr2].
+      eapply IHr0;eauto.
 Qed.
+
+Lemma build_frame_decl_preserve_no_overflow: ∀ st decl l sz lvl l' sz',
+    sz >= 0
+    -> build_frame_decl st (l,sz) decl =: (l',sz')
+    -> all_addr_no_overflow_localframe (lvl, l)
+    -> all_addr_no_overflow_localframe (lvl, l').
+Proof.
+  intros st decl l sz lvl l' sz' H H0 H1.
+  edestruct build_frame_decl_preserve_no_overflow_pos_addr;eauto.
+Qed.
+
+Lemma build_frame_decl_preserve_pos_addr: ∀ st decl l sz lvl l' sz',
+    sz >= 0
+    -> build_frame_decl st (l,sz) decl =: (l',sz')
+    -> all_addr_no_overflow_localframe (lvl, l)
+    -> sz >= 0.
+Proof.
+  intros st decl l sz lvl l' sz' H H0 H1.
+  edestruct build_frame_decl_preserve_no_overflow_pos_addr;eauto.
+Qed.
+(*
+Lemma build_frame_decl_preserve_no_overflow_pos_addr: ∀ st decl l sz lvl l' sz',
+    sz >= 0
+    -> build_frame_decl st (l,sz) decl =: (l',sz')
+    -> all_addr_no_overflow_localframe (lvl, l)
+    -> all_addr_no_overflow_localframe (lvl, l') ∧ sz' >= 0.
+Proof.
+  intros until sz.
+  remember (l, sz) as locfrmZ.
+  revert l sz HeqlocfrmZ .
+  rewrite <- build_frame_decl_ok.
+  !functional induction (build_frame_decl_2 st locfrmZ decl);!intros;subst;try discriminate
+  ; try rewrite -> build_frame_decl_ok in *.
+*)
 
 
 Lemma build_compilenv_preserve_invariant_compile:
@@ -2702,14 +2754,52 @@ Proof.
   !!(intros until 1).
   rewrite <- build_compilenv_ok in heq.
   !functional inversion heq;subst;intro; rewrite -> ?build_compilenv_ok in *;clear heq.
-  - split.
+  - split;eauto.
     + admit. (* TODO: replace increasing_order by a more precise property:
                 each element has exactly the number corresponding to its height in the stack *)
     + admit. (* idem *)
-    + apply all_addr_no_overflow_fetch_OK;auto.
-      * destruct x;unfold stoszchainparam in *.
-        eapply build_frame_lparams_preserve_no_overflow.
-        -- shelve.
+    + apply all_addr_no_overflow_fetch_OK;eauto.
+      destruct x;unfold stoszchainparam in *.
+      eapply (build_frame_decl_preserve_no_overflow st pdeclpart s z (Datatypes.length CE) x0 stcksize).
+      -- eapply (build_frame_lparams_preserve_pos_addr st prmprof);eauto; try omega.
+         red. cbn. discriminate.
+      -- assumption.
+      -- eapply (build_frame_lparams_preserve_no_overflow st prmprof);eauto; try omega.
+         red. cbn. intro. discriminate.
+  - split;eauto.
+    + admit. (* TODO: replace increasing_order by a more precise property:
+                each element has exactly the number corresponding to its height in the stack *)
+    + admit. (* idem *)
+    + apply all_addr_no_overflow_fetch_OK;eauto.
+      destruct x;unfold stoszchainparam in *.
+      eapply (build_frame_decl_preserve_no_overflow st pdeclpart s z (Datatypes.length CE) x0 stcksize).
+      -- eapply (build_frame_lparams_preserve_pos_addr st prmprof);eauto; try omega.
+         red. cbn in *. !intros.
+         !destruct id;cbn in *.
+         ++ !invclear heq;split;auto with zarith.
+            generalize Int.modulus_pos;intro ;omega.
+         ++ discriminate.
+      -- assumption.
+      -- eapply (build_frame_lparams_preserve_no_overflow st prmprof);eauto; try omega.
+         red. cbn. !intros.
+         !destruct id ;cbn in *.
+         ++ !invclear heq;split;auto with zarith.
+            generalize Int.modulus_pos;intro ;omega.
+         ++ discriminate.
+Qed.
+
+ intro. discriminate.
+  - split;eauto.
+
+
+ _no_overflow with (sz:=0) (sz':=z) (st:=st) (l:=[]) (prmprof:=prmprof).
+
+        apply build_frame_lparams_preserve_no_overflow with (sz:=0) (sz':=z) (st:=st) (l:=[]) (prmprof:=prmprof).
+        -- omega.
+        -- 
+        ; try omega; cbn in *; auto.
+        -- functional inversion heq_bld_frm_prmprof.
+          eapply build_frame_lparams_preserve_pos_addr;eauto; try omega.
         -- eassumption.
         admit.
       * apply (ci_no_overflow H).
