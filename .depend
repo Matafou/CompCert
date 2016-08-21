@@ -220,8 +220,8 @@ spark/language.vo spark/language.glob spark/language.v.beautified: spark/languag
 spark/language.vio: spark/language.v spark/language_basics.vio
 spark/symboltable.vo spark/symboltable.glob spark/symboltable.v.beautified: spark/symboltable.v spark/symboltable_module.vo spark/language_flagged.vo
 spark/symboltable.vio: spark/symboltable.v spark/symboltable_module.vio spark/language_flagged.vio
-spark/semantics.vo spark/semantics.glob spark/semantics.v.beautified: spark/semantics.v spark/more_list.vo spark/values.vo spark/environment.vo spark/symboltable.vo spark/CpdtTactics.vo
-spark/semantics.vio: spark/semantics.v spark/more_list.vio spark/values.vio spark/environment.vio spark/symboltable.vio spark/CpdtTactics.vio
+spark/semantics.vo spark/semantics.glob spark/semantics.v.beautified: spark/semantics.v spark/more_list.vo spark/values.vo spark/environment.vo spark/symboltable.vo spark/CpdtTactics.vo spark/more_store.vo
+spark/semantics.vio: spark/semantics.v spark/more_list.vio spark/values.vio spark/environment.vio spark/symboltable.vio spark/CpdtTactics.vio spark/more_store.vio
 spark/semantics_flagged.vo spark/semantics_flagged.glob spark/semantics_flagged.v.beautified: spark/semantics_flagged.v spark/checks.vo spark/language_flagged.vo spark/language_util.vo spark/semantics.vo
 spark/semantics_flagged.vio: spark/semantics_flagged.v spark/checks.vio spark/language_flagged.vio spark/language_util.vio spark/semantics.vio
 spark/LibTactics.vo spark/LibTactics.glob spark/LibTactics.v.beautified: spark/LibTactics.v
@@ -236,8 +236,8 @@ sparkfrontend/more_stdlib.vo sparkfrontend/more_stdlib.glob sparkfrontend/more_s
 sparkfrontend/more_stdlib.vio: sparkfrontend/more_stdlib.v sparkfrontend/LibHypsNaming.vio
 sparkfrontend/LibHypsNaming.vo sparkfrontend/LibHypsNaming.glob sparkfrontend/LibHypsNaming.v.beautified: sparkfrontend/LibHypsNaming.v
 sparkfrontend/LibHypsNaming.vio: sparkfrontend/LibHypsNaming.v
-sparkfrontend/function_utils.vo sparkfrontend/function_utils.glob sparkfrontend/function_utils.v.beautified: sparkfrontend/function_utils.v spark/semantics.vo sparkfrontend/LibHypsNaming.vo common/Errors.vo backend/Cminor.vo sparkfrontend/spark2Cminor.vo
-sparkfrontend/function_utils.vio: sparkfrontend/function_utils.v spark/semantics.vio sparkfrontend/LibHypsNaming.vio common/Errors.vio backend/Cminor.vio sparkfrontend/spark2Cminor.vio
+sparkfrontend/function_utils.vo sparkfrontend/function_utils.glob sparkfrontend/function_utils.v.beautified: sparkfrontend/function_utils.v spark/semantics.vo sparkfrontend/LibHypsNaming.vo common/Memory.vo common/Errors.vo backend/Cminor.vo sparkfrontend/spark2Cminor.vo
+sparkfrontend/function_utils.vio: sparkfrontend/function_utils.v spark/semantics.vio sparkfrontend/LibHypsNaming.vio common/Memory.vio common/Errors.vio backend/Cminor.vio sparkfrontend/spark2Cminor.vio
 sparkfrontend/semantics_properties.vo sparkfrontend/semantics_properties.glob sparkfrontend/semantics_properties.v.beautified: sparkfrontend/semantics_properties.v sparkfrontend/LibHypsNaming.vo spark/semantics.vo common/Errors.vo sparkfrontend/more_stdlib.vo sparkfrontend/function_utils.vo sparkfrontend/spark2Cminor.vo
 sparkfrontend/semantics_properties.vio: sparkfrontend/semantics_properties.v sparkfrontend/LibHypsNaming.vio spark/semantics.vio common/Errors.vio sparkfrontend/more_stdlib.vio sparkfrontend/function_utils.vio sparkfrontend/spark2Cminor.vio
 sparkfrontend/spark2Cminor.vo sparkfrontend/spark2Cminor.glob sparkfrontend/spark2Cminor.v.beautified: sparkfrontend/spark2Cminor.v sparkfrontend/LibHypsNaming.vo common/Errors.vo backend/Cminor.vo cfrontend/Ctypes.vo common/AST.vo lib/Maps.vo spark/symboltable.vo spark/semantics.vo
