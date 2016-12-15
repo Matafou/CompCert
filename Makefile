@@ -51,6 +51,7 @@ GPATH=$(DIRS)
 SPARK=\
   spark/util.v \
   spark/more_list.v \
+  spark/more_store.v \
   spark/symboltable_module.v \
   spark/environment.v \
   spark/language_basics.v \

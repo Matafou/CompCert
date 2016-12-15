@@ -206,6 +206,8 @@ spark/util.vo spark/util.glob spark/util.v.beautified: spark/util.v spark/LibTac
 spark/util.vio: spark/util.v spark/LibTactics.vio
 spark/more_list.vo spark/more_list.glob spark/more_list.v.beautified: spark/more_list.v
 spark/more_list.vio: spark/more_list.v
+spark/more_store.vo spark/more_store.glob spark/more_store.v.beautified: spark/more_store.v spark/environment.vo
+spark/more_store.vio: spark/more_store.v spark/environment.vio
 spark/symboltable_module.vo spark/symboltable_module.glob spark/symboltable_module.v.beautified: spark/symboltable_module.v spark/environment.vo
 spark/symboltable_module.vio: spark/symboltable_module.v spark/environment.vio
 spark/environment.vo spark/environment.glob spark/environment.v.beautified: spark/environment.v spark/values.vo
@@ -242,8 +244,8 @@ sparkfrontend/semantics_properties.vo sparkfrontend/semantics_properties.glob sp
 sparkfrontend/semantics_properties.vio: sparkfrontend/semantics_properties.v sparkfrontend/LibHypsNaming.vio spark/semantics.vio common/Errors.vio sparkfrontend/more_stdlib.vio sparkfrontend/function_utils.vio sparkfrontend/spark2Cminor.vio
 sparkfrontend/spark2Cminor.vo sparkfrontend/spark2Cminor.glob sparkfrontend/spark2Cminor.v.beautified: sparkfrontend/spark2Cminor.v sparkfrontend/LibHypsNaming.vo common/Errors.vo backend/Cminor.vo cfrontend/Ctypes.vo common/AST.vo lib/Maps.vo spark/symboltable.vo spark/semantics.vo
 sparkfrontend/spark2Cminor.vio: sparkfrontend/spark2Cminor.v sparkfrontend/LibHypsNaming.vio common/Errors.vio backend/Cminor.vio cfrontend/Ctypes.vio common/AST.vio lib/Maps.vio spark/symboltable.vio spark/semantics.vio
-sparkfrontend/compcert_utils.vo sparkfrontend/compcert_utils.glob sparkfrontend/compcert_utils.v.beautified: sparkfrontend/compcert_utils.v sparkfrontend/LibHypsNaming.vo sparkfrontend/spark2Cminor.vo
-sparkfrontend/compcert_utils.vio: sparkfrontend/compcert_utils.v sparkfrontend/LibHypsNaming.vio sparkfrontend/spark2Cminor.vio
+sparkfrontend/compcert_utils.vo sparkfrontend/compcert_utils.glob sparkfrontend/compcert_utils.v.beautified: sparkfrontend/compcert_utils.v sparkfrontend/LibHypsNaming.vo sparkfrontend/spark2Cminor.vo sparkfrontend/more_stdlib.vo
+sparkfrontend/compcert_utils.vio: sparkfrontend/compcert_utils.v sparkfrontend/LibHypsNaming.vio sparkfrontend/spark2Cminor.vio sparkfrontend/more_stdlib.vio
 sparkfrontend/spark2cmproofs.vo sparkfrontend/spark2cmproofs.glob sparkfrontend/spark2cmproofs.v.beautified: sparkfrontend/spark2cmproofs.v sparkfrontend/function_utils.vo sparkfrontend/LibHypsNaming.vo common/Errors.vo sparkfrontend/spark2Cminor.vo backend/Cminor.vo spark/symboltable.vo spark/semantics.vo sparkfrontend/semantics_properties.vo lib/Integers.vo sparkfrontend/compcert_utils.vo sparkfrontend/more_stdlib.vo cfrontend/Ctypes.vo
 sparkfrontend/spark2cmproofs.vio: sparkfrontend/spark2cmproofs.v sparkfrontend/function_utils.vio sparkfrontend/LibHypsNaming.vio common/Errors.vio sparkfrontend/spark2Cminor.vio backend/Cminor.vio spark/symboltable.vio spark/semantics.vio sparkfrontend/semantics_properties.vio lib/Integers.vio sparkfrontend/compcert_utils.vio sparkfrontend/more_stdlib.vio cfrontend/Ctypes.vio
 cfrontend/Ctypes.vo cfrontend/Ctypes.glob cfrontend/Ctypes.v.beautified: cfrontend/Ctypes.v lib/Coqlib.vo lib/Maps.vo common/AST.vo common/Errors.vo $(ARCH)/Archi.vo
