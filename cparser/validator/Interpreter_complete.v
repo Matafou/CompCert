@@ -23,7 +23,7 @@ Require Grammar.
 Require Automaton.
 Require Interpreter.
 Require Validator_complete.
-
+Require ProofIrrelevance.
 Module Make(Import A:Automaton.T) (Import Inter:Interpreter.T A).
 Module Import Valid := Validator_complete.Make A.
 
@@ -444,7 +444,7 @@ destruct (compare_eqdec (last_symb_of_non_init_state state) head_symbolt); intui
 eapply JMeq_sym, JMeq_trans, JMeq_sym, JMeq_eq in H1; [|apply JMeq_eqrect with (e:=e)].
 rewrite <- H1.
 simpl in pop_ptlz_pop_stack_compat.
-erewrite proof_irrelevance with (p1:=pop_ptlz_pop_stack_compat_converter _ _ _ _ _).
+erewrite ProofIrrelevance.proof_irrelevance with (p1:=pop_ptlz_pop_stack_compat_converter _ _ _ _ _).
 apply pop_ptlz_pop_stack_compat.
 Transparent AlphabetComparable AlphabetComparableUsualEq.
 Qed.

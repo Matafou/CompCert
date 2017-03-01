@@ -202,8 +202,6 @@ $(ARCH)/Asmgenproof1.vo $(ARCH)/Asmgenproof1.glob $(ARCH)/Asmgenproof1.v.beautif
 $(ARCH)/Asmgenproof1.vio: $(ARCH)/Asmgenproof1.v lib/Coqlib.vio common/AST.vio common/Errors.vio lib/Integers.vio lib/Floats.vio common/Values.vio common/Memory.vio common/Globalenvs.vio $(ARCH)/Op.vio backend/Locations.vio backend/Mach.vio $(ARCH)/Asm.vio $(ARCH)/Asmgen.vio backend/Asmgenproof0.vio backend/Conventions.vio
 $(ARCH)/Asmgenproof.vo $(ARCH)/Asmgenproof.glob $(ARCH)/Asmgenproof.v.beautified: $(ARCH)/Asmgenproof.v lib/Coqlib.vo common/Errors.vo common/AST.vo lib/Integers.vo lib/Floats.vo common/Values.vo common/Memory.vo common/Events.vo common/Globalenvs.vo common/Smallstep.vo $(ARCH)/Op.vo backend/Locations.vo backend/Mach.vo backend/Conventions.vo $(ARCH)/Asm.vo $(ARCH)/Asmgen.vo backend/Asmgenproof0.vo $(ARCH)/Asmgenproof1.vo
 $(ARCH)/Asmgenproof.vio: $(ARCH)/Asmgenproof.v lib/Coqlib.vio common/Errors.vio common/AST.vio lib/Integers.vio lib/Floats.vio common/Values.vio common/Memory.vio common/Events.vio common/Globalenvs.vio common/Smallstep.vio $(ARCH)/Op.vio backend/Locations.vio backend/Mach.vio backend/Conventions.vio $(ARCH)/Asm.vio $(ARCH)/Asmgen.vio backend/Asmgenproof0.vio $(ARCH)/Asmgenproof1.vio
-spark/util.vo spark/util.glob spark/util.v.beautified: spark/util.v spark/LibTactics.vo
-spark/util.vio: spark/util.v spark/LibTactics.vio
 spark/more_list.vo spark/more_list.glob spark/more_list.v.beautified: spark/more_list.v
 spark/more_list.vio: spark/more_list.v
 spark/more_store.vo spark/more_store.glob spark/more_store.v.beautified: spark/more_store.v spark/environment.vo
@@ -212,8 +210,8 @@ spark/symboltable_module.vo spark/symboltable_module.glob spark/symboltable_modu
 spark/symboltable_module.vio: spark/symboltable_module.v spark/environment.vio
 spark/environment.vo spark/environment.glob spark/environment.v.beautified: spark/environment.v spark/values.vo
 spark/environment.vio: spark/environment.v spark/values.vio
-spark/language_basics.vo spark/language_basics.glob spark/language_basics.v.beautified: spark/language_basics.v spark/CpdtTactics.vo spark/LibTactics.vo spark/more_list.vo
-spark/language_basics.vio: spark/language_basics.v spark/CpdtTactics.vio spark/LibTactics.vio spark/more_list.vio
+spark/language_basics.vo spark/language_basics.glob spark/language_basics.v.beautified: spark/language_basics.v spark/CpdtTactics.vo spark/more_list.vo
+spark/language_basics.vio: spark/language_basics.v spark/CpdtTactics.vio spark/more_list.vio
 spark/language_flagged.vo spark/language_flagged.glob spark/language_flagged.v.beautified: spark/language_flagged.v spark/language.vo spark/checks.vo
 spark/language_flagged.vio: spark/language_flagged.v spark/language.vio spark/checks.vio
 spark/language_util.vo spark/language_util.glob spark/language_util.v.beautified: spark/language_util.v spark/language_flagged.vo
@@ -226,8 +224,6 @@ spark/semantics.vo spark/semantics.glob spark/semantics.v.beautified: spark/sema
 spark/semantics.vio: spark/semantics.v spark/more_list.vio spark/values.vio spark/environment.vio spark/symboltable.vio spark/CpdtTactics.vio spark/more_store.vio
 spark/semantics_flagged.vo spark/semantics_flagged.glob spark/semantics_flagged.v.beautified: spark/semantics_flagged.v spark/checks.vo spark/language_flagged.vo spark/language_util.vo spark/semantics.vo
 spark/semantics_flagged.vio: spark/semantics_flagged.v spark/checks.vio spark/language_flagged.vio spark/language_util.vio spark/semantics.vio
-spark/LibTactics.vo spark/LibTactics.glob spark/LibTactics.v.beautified: spark/LibTactics.v
-spark/LibTactics.vio: spark/LibTactics.v
 spark/CpdtTactics.vo spark/CpdtTactics.glob spark/CpdtTactics.v.beautified: spark/CpdtTactics.v
 spark/CpdtTactics.vio: spark/CpdtTactics.v
 spark/checks.vo spark/checks.glob spark/checks.v.beautified: spark/checks.v spark/language.vo

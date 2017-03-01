@@ -47,9 +47,10 @@ GPATH=$(DIRS)
 #  sparkfrontend/spark/checks_optimization_soundness.v \
 #  sparkfrontend/spark/well_check_flagged.v \
 #  sparkfrontend/spark/well_typed.v \
+#  spark/util.v \
+#  spark/LibTactics.v \
 
 SPARK=\
-  spark/util.v \
   spark/more_list.v \
   spark/more_store.v \
   spark/symboltable_module.v \
@@ -61,7 +62,6 @@ SPARK=\
   spark/symboltable.v \
   spark/semantics.v \
   spark/semantics_flagged.v \
-  spark/LibTactics.v \
   spark/CpdtTactics.v \
   spark/checks.v \
   spark/values.v \

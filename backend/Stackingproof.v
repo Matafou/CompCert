@@ -2583,15 +2583,19 @@ Proof.
   rewrite (unfold_transf_function _ _ TRANSL). unfold fn_link_ofs.
   eapply index_contains_load_stack with (idx := FI_link). eapply TRANSL. eapply agree_link; eauto.
   simpl parent_sp.
+
   change (offset_of_index (make_env (function_bounds f)) (FI_arg ofs ty))
     with (offset_of_index (make_env (function_bounds f0)) (FI_arg ofs ty)).
   eapply index_contains_load_stack with (idx := FI_arg ofs ty). eauto. eauto.
-  exploit agree_incoming; eauto. intros EQ; simpl in EQ.
-  econstructor; eauto with coqlib. econstructor; eauto.
-  apply agree_regs_set_reg. apply agree_regs_set_reg. auto. auto. congruence.
-  eapply agree_frame_set_reg; eauto. eapply agree_frame_set_reg; eauto.
-  apply caller_save_reg_within_bounds.
-  apply temp_for_parent_frame_caller_save.
+  exploit agree_incoming.
+  * eapply AGFRAME.
+  * eauto.
+    * intros EQ; simpl in EQ.
+      econstructor; eauto with coqlib. econstructor; eauto.
+      apply agree_regs_set_reg. apply agree_regs_set_reg. auto. auto. simpl in *. congruence.
+      eapply agree_frame_set_reg; eauto. eapply agree_frame_set_reg; eauto.
+      apply caller_save_reg_within_bounds.
+      apply temp_for_parent_frame_caller_save.
 + (* Lgetstack, outgoing *)
   exploit agree_outgoing; eauto. intros [v [A B]].
   econstructor; split.

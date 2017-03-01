@@ -720,6 +720,7 @@ Ltac TransfInstr :=
      FUN: transf_function _ _ = OK _,
      ANL: analyze _ _ = Some _ |- _ ] =>
        generalize (transf_function_at _ _ _ _ _ FUN ANL INSTR);
+       let TI := fresh "TI" in
        intro TI;
        unfold transf_instr in TI
   end.
@@ -981,7 +982,7 @@ Ltac UseTransfer :=
   eapply match_succ_states; eauto. simpl; auto.
   destruct res; auto. apply eagree_set_undef; auto.
   eapply magree_storebytes_left; eauto.
-  exploit aaddr_arg_sound. eauto. eauto.
+  exploit aaddr_arg_sound. eauto. apply H4.
   intros (bc & A & B & C).
   intros. eapply nlive_contains; eauto.
   erewrite Mem.loadbytes_length in H0 by eauto.
