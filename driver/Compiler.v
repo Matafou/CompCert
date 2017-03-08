@@ -78,8 +78,8 @@ Require Asmgenproof.
 (** Command-line flags. *)
 Require Import Compopts.
 
-Require semantics.
-Require language.
+Require spark.eval.
+Require spark.ast.
 Require spark2Cminor.
 
 (** Pretty-printers (defined in Caml). *)

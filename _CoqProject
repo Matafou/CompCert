@@ -9,5 +9,5 @@
 -R exportclight compcert.exportclight
 -R cparser compcert.cparser
 
--R sparkfrontend sparkfrontend
+-R sparkfrontend compcert.sparkfrontend
 -R spark spark

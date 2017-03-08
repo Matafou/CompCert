@@ -202,48 +202,84 @@ $(ARCH)/Asmgenproof1.vo $(ARCH)/Asmgenproof1.glob $(ARCH)/Asmgenproof1.v.beautif
 $(ARCH)/Asmgenproof1.vio: $(ARCH)/Asmgenproof1.v lib/Coqlib.vio common/AST.vio common/Errors.vio lib/Integers.vio lib/Floats.vio common/Values.vio common/Memory.vio common/Globalenvs.vio $(ARCH)/Op.vio backend/Locations.vio backend/Mach.vio $(ARCH)/Asm.vio $(ARCH)/Asmgen.vio backend/Asmgenproof0.vio backend/Conventions.vio
 $(ARCH)/Asmgenproof.vo $(ARCH)/Asmgenproof.glob $(ARCH)/Asmgenproof.v.beautified: $(ARCH)/Asmgenproof.v lib/Coqlib.vo common/Errors.vo common/AST.vo lib/Integers.vo lib/Floats.vo common/Values.vo common/Memory.vo common/Events.vo common/Globalenvs.vo common/Smallstep.vo $(ARCH)/Op.vo backend/Locations.vo backend/Mach.vo backend/Conventions.vo $(ARCH)/Asm.vo $(ARCH)/Asmgen.vo backend/Asmgenproof0.vo $(ARCH)/Asmgenproof1.vo
 $(ARCH)/Asmgenproof.vio: $(ARCH)/Asmgenproof.v lib/Coqlib.vio common/Errors.vio common/AST.vio lib/Integers.vio lib/Floats.vio common/Values.vio common/Memory.vio common/Events.vio common/Globalenvs.vio common/Smallstep.vio $(ARCH)/Op.vio backend/Locations.vio backend/Mach.vio backend/Conventions.vio $(ARCH)/Asm.vio $(ARCH)/Asmgen.vio backend/Asmgenproof0.vio $(ARCH)/Asmgenproof1.vio
-spark/more_list.vo spark/more_list.glob spark/more_list.v.beautified: spark/more_list.v
-spark/more_list.vio: spark/more_list.v
-spark/more_store.vo spark/more_store.glob spark/more_store.v.beautified: spark/more_store.v spark/environment.vo
-spark/more_store.vio: spark/more_store.v spark/environment.vio
-spark/symboltable_module.vo spark/symboltable_module.glob spark/symboltable_module.v.beautified: spark/symboltable_module.v spark/environment.vo
-spark/symboltable_module.vio: spark/symboltable_module.v spark/environment.vio
-spark/environment.vo spark/environment.glob spark/environment.v.beautified: spark/environment.v spark/values.vo
-spark/environment.vio: spark/environment.v spark/values.vio
-spark/language_basics.vo spark/language_basics.glob spark/language_basics.v.beautified: spark/language_basics.v spark/CpdtTactics.vo spark/more_list.vo
-spark/language_basics.vio: spark/language_basics.v spark/CpdtTactics.vio spark/more_list.vio
-spark/language_flagged.vo spark/language_flagged.glob spark/language_flagged.v.beautified: spark/language_flagged.v spark/language.vo spark/checks.vo
-spark/language_flagged.vio: spark/language_flagged.v spark/language.vio spark/checks.vio
-spark/language_util.vo spark/language_util.glob spark/language_util.v.beautified: spark/language_util.v spark/language_flagged.vo
-spark/language_util.vio: spark/language_util.v spark/language_flagged.vio
-spark/language.vo spark/language.glob spark/language.v.beautified: spark/language.v spark/language_basics.vo
-spark/language.vio: spark/language.v spark/language_basics.vio
-spark/symboltable.vo spark/symboltable.glob spark/symboltable.v.beautified: spark/symboltable.v spark/symboltable_module.vo spark/language_flagged.vo
-spark/symboltable.vio: spark/symboltable.v spark/symboltable_module.vio spark/language_flagged.vio
-spark/semantics.vo spark/semantics.glob spark/semantics.v.beautified: spark/semantics.v spark/more_list.vo spark/values.vo spark/environment.vo spark/symboltable.vo spark/CpdtTactics.vo spark/more_store.vo
-spark/semantics.vio: spark/semantics.v spark/more_list.vio spark/values.vio spark/environment.vio spark/symboltable.vio spark/CpdtTactics.vio spark/more_store.vio
-spark/semantics_flagged.vo spark/semantics_flagged.glob spark/semantics_flagged.v.beautified: spark/semantics_flagged.v spark/checks.vo spark/language_flagged.vo spark/language_util.vo spark/semantics.vo
-spark/semantics_flagged.vio: spark/semantics_flagged.v spark/checks.vio spark/language_flagged.vio spark/language_util.vio spark/semantics.vio
+spark/ast_basics.vo spark/ast_basics.glob spark/ast_basics.v.beautified: spark/ast_basics.v spark/CpdtTactics.vo spark/list_util.vo
+spark/ast_basics.vio: spark/ast_basics.v spark/CpdtTactics.vio spark/list_util.vio
+spark/ast_rt.vo spark/ast_rt.glob spark/ast_rt.v.beautified: spark/ast_rt.v spark/ast.vo spark/rt.vo
+spark/ast_rt.vio: spark/ast_rt.v spark/ast.vio spark/rt.vio
+spark/ast_template.vo spark/ast_template.glob spark/ast_template.v.beautified: spark/ast_template.v
+spark/ast_template.vio: spark/ast_template.v
+spark/ast_util.vo spark/ast_util.glob spark/ast_util.v.beautified: spark/ast_util.v spark/ast_rt.vo
+spark/ast_util.vio: spark/ast_util.v spark/ast_rt.vio
+spark/ast.vo spark/ast.glob spark/ast.v.beautified: spark/ast.v spark/ast_basics.vo
+spark/ast.vio: spark/ast.v spark/ast_basics.vio
 spark/CpdtTactics.vo spark/CpdtTactics.glob spark/CpdtTactics.v.beautified: spark/CpdtTactics.v
 spark/CpdtTactics.vio: spark/CpdtTactics.v
-spark/checks.vo spark/checks.glob spark/checks.v.beautified: spark/checks.v spark/language.vo
-spark/checks.vio: spark/checks.v spark/language.vio
-spark/values.vo spark/values.glob spark/values.v.beautified: spark/values.v spark/language_basics.vo
-spark/values.vio: spark/values.v spark/language_basics.vio
-sparkfrontend/more_stdlib.vo sparkfrontend/more_stdlib.glob sparkfrontend/more_stdlib.v.beautified: sparkfrontend/more_stdlib.v sparkfrontend/LibHypsNaming.vo
-sparkfrontend/more_stdlib.vio: sparkfrontend/more_stdlib.v sparkfrontend/LibHypsNaming.vio
-sparkfrontend/LibHypsNaming.vo sparkfrontend/LibHypsNaming.glob sparkfrontend/LibHypsNaming.v.beautified: sparkfrontend/LibHypsNaming.v
-sparkfrontend/LibHypsNaming.vio: sparkfrontend/LibHypsNaming.v
-sparkfrontend/function_utils.vo sparkfrontend/function_utils.glob sparkfrontend/function_utils.v.beautified: sparkfrontend/function_utils.v spark/semantics.vo sparkfrontend/LibHypsNaming.vo common/Memory.vo common/Errors.vo backend/Cminor.vo sparkfrontend/spark2Cminor.vo
-sparkfrontend/function_utils.vio: sparkfrontend/function_utils.v spark/semantics.vio sparkfrontend/LibHypsNaming.vio common/Memory.vio common/Errors.vio backend/Cminor.vio sparkfrontend/spark2Cminor.vio
-sparkfrontend/semantics_properties.vo sparkfrontend/semantics_properties.glob sparkfrontend/semantics_properties.v.beautified: sparkfrontend/semantics_properties.v sparkfrontend/LibHypsNaming.vo spark/semantics.vo common/Errors.vo sparkfrontend/more_stdlib.vo sparkfrontend/function_utils.vo sparkfrontend/spark2Cminor.vo
-sparkfrontend/semantics_properties.vio: sparkfrontend/semantics_properties.v sparkfrontend/LibHypsNaming.vio spark/semantics.vio common/Errors.vio sparkfrontend/more_stdlib.vio sparkfrontend/function_utils.vio sparkfrontend/spark2Cminor.vio
-sparkfrontend/spark2Cminor.vo sparkfrontend/spark2Cminor.glob sparkfrontend/spark2Cminor.v.beautified: sparkfrontend/spark2Cminor.v sparkfrontend/LibHypsNaming.vo common/Errors.vo backend/Cminor.vo cfrontend/Ctypes.vo common/AST.vo lib/Maps.vo spark/symboltable.vo spark/semantics.vo
-sparkfrontend/spark2Cminor.vio: sparkfrontend/spark2Cminor.v sparkfrontend/LibHypsNaming.vio common/Errors.vio backend/Cminor.vio cfrontend/Ctypes.vio common/AST.vio lib/Maps.vio spark/symboltable.vio spark/semantics.vio
+spark/environment.vo spark/environment.glob spark/environment.v.beautified: spark/environment.v spark/values.vo
+spark/environment.vio: spark/environment.v spark/values.vio
+spark/eval_rt.vo spark/eval_rt.glob spark/eval_rt.v.beautified: spark/eval_rt.v spark/rt.vo spark/ast_rt.vo spark/ast_util.vo spark/eval.vo
+spark/eval_rt.vio: spark/eval_rt.v spark/rt.vio spark/ast_rt.vio spark/ast_util.vio spark/eval.vio
+spark/eval.vo spark/eval.glob spark/eval.v.beautified: spark/eval.v spark/list_util.vo spark/values.vo spark/environment.vo spark/symboltable.vo spark/CpdtTactics.vo
+spark/eval.vio: spark/eval.v spark/list_util.vio spark/values.vio spark/environment.vio spark/symboltable.vio spark/CpdtTactics.vio
 sparkfrontend/compcert_utils.vo sparkfrontend/compcert_utils.glob sparkfrontend/compcert_utils.v.beautified: sparkfrontend/compcert_utils.v sparkfrontend/LibHypsNaming.vo sparkfrontend/spark2Cminor.vo sparkfrontend/more_stdlib.vo
 sparkfrontend/compcert_utils.vio: sparkfrontend/compcert_utils.v sparkfrontend/LibHypsNaming.vio sparkfrontend/spark2Cminor.vio sparkfrontend/more_stdlib.vio
-sparkfrontend/spark2cmproofs.vo sparkfrontend/spark2cmproofs.glob sparkfrontend/spark2cmproofs.v.beautified: sparkfrontend/spark2cmproofs.v sparkfrontend/function_utils.vo sparkfrontend/LibHypsNaming.vo common/Errors.vo sparkfrontend/spark2Cminor.vo backend/Cminor.vo spark/symboltable.vo spark/semantics.vo sparkfrontend/semantics_properties.vo lib/Integers.vo sparkfrontend/compcert_utils.vo sparkfrontend/more_stdlib.vo cfrontend/Ctypes.vo
-sparkfrontend/spark2cmproofs.vio: sparkfrontend/spark2cmproofs.v sparkfrontend/function_utils.vio sparkfrontend/LibHypsNaming.vio common/Errors.vio sparkfrontend/spark2Cminor.vio backend/Cminor.vio spark/symboltable.vio spark/semantics.vio sparkfrontend/semantics_properties.vio lib/Integers.vio sparkfrontend/compcert_utils.vio sparkfrontend/more_stdlib.vio cfrontend/Ctypes.vio
+sparkfrontend/essai.vo sparkfrontend/essai.glob sparkfrontend/essai.v.beautified: sparkfrontend/essai.v sparkfrontend/function_utils.vo sparkfrontend/LibHypsNaming.vo common/Errors.vo sparkfrontend/spark2Cminor.vo backend/Cminor.vo spark/symboltable.vo sparkfrontend/semantics_properties.vo lib/Integers.vo sparkfrontend/compcert_utils.vo sparkfrontend/more_stdlib.vo cfrontend/Ctypes.vo
+sparkfrontend/essai.vio: sparkfrontend/essai.v sparkfrontend/function_utils.vio sparkfrontend/LibHypsNaming.vio common/Errors.vio sparkfrontend/spark2Cminor.vio backend/Cminor.vio spark/symboltable.vio sparkfrontend/semantics_properties.vio lib/Integers.vio sparkfrontend/compcert_utils.vio sparkfrontend/more_stdlib.vio cfrontend/Ctypes.vio
+sparkfrontend/function_utils.vo sparkfrontend/function_utils.glob sparkfrontend/function_utils.v.beautified: sparkfrontend/function_utils.v sparkfrontend/LibHypsNaming.vo common/Memory.vo common/Errors.vo backend/Cminor.vo sparkfrontend/spark2Cminor.vo
+sparkfrontend/function_utils.vio: sparkfrontend/function_utils.v sparkfrontend/LibHypsNaming.vio common/Memory.vio common/Errors.vio backend/Cminor.vio sparkfrontend/spark2Cminor.vio
+sparkfrontend/LibHypsNaming.vo sparkfrontend/LibHypsNaming.glob sparkfrontend/LibHypsNaming.v.beautified: sparkfrontend/LibHypsNaming.v
+sparkfrontend/LibHypsNaming.vio: sparkfrontend/LibHypsNaming.v
+sparkfrontend/more_stdlib.vo sparkfrontend/more_stdlib.glob sparkfrontend/more_stdlib.v.beautified: sparkfrontend/more_stdlib.v sparkfrontend/LibHypsNaming.vo
+sparkfrontend/more_stdlib.vio: sparkfrontend/more_stdlib.v sparkfrontend/LibHypsNaming.vio
+sparkfrontend/semantics_properties.vo sparkfrontend/semantics_properties.glob sparkfrontend/semantics_properties.v.beautified: sparkfrontend/semantics_properties.v sparkfrontend/LibHypsNaming.vo common/Errors.vo sparkfrontend/more_stdlib.vo sparkfrontend/function_utils.vo sparkfrontend/spark2Cminor.vo
+sparkfrontend/semantics_properties.vio: sparkfrontend/semantics_properties.v sparkfrontend/LibHypsNaming.vio common/Errors.vio sparkfrontend/more_stdlib.vio sparkfrontend/function_utils.vio sparkfrontend/spark2Cminor.vio
+sparkfrontend/spark2Cminor.vo sparkfrontend/spark2Cminor.glob sparkfrontend/spark2Cminor.v.beautified: sparkfrontend/spark2Cminor.v sparkfrontend/LibHypsNaming.vo common/Errors.vo backend/Cminor.vo cfrontend/Ctypes.vo common/AST.vo lib/Maps.vo spark/symboltable.vo
+sparkfrontend/spark2Cminor.vio: sparkfrontend/spark2Cminor.v sparkfrontend/LibHypsNaming.vio common/Errors.vio backend/Cminor.vio cfrontend/Ctypes.vio common/AST.vio lib/Maps.vio spark/symboltable.vio
+sparkfrontend/spark2cmproofs.vo sparkfrontend/spark2cmproofs.glob sparkfrontend/spark2cmproofs.v.beautified: sparkfrontend/spark2cmproofs.v sparkfrontend/function_utils.vo sparkfrontend/LibHypsNaming.vo common/Errors.vo sparkfrontend/spark2Cminor.vo backend/Cminor.vo spark/symboltable.vo sparkfrontend/semantics_properties.vo lib/Integers.vo sparkfrontend/compcert_utils.vo sparkfrontend/more_stdlib.vo cfrontend/Ctypes.vo
+sparkfrontend/spark2cmproofs.vio: sparkfrontend/spark2cmproofs.v sparkfrontend/function_utils.vio sparkfrontend/LibHypsNaming.vio common/Errors.vio sparkfrontend/spark2Cminor.vio backend/Cminor.vio spark/symboltable.vio sparkfrontend/semantics_properties.vio lib/Integers.vio sparkfrontend/compcert_utils.vio sparkfrontend/more_stdlib.vio cfrontend/Ctypes.vio
+spark/list_util.vo spark/list_util.glob spark/list_util.v.beautified: spark/list_util.v
+spark/list_util.vio: spark/list_util.v
+spark/rt_counter.vo spark/rt_counter.glob spark/rt_counter.v.beautified: spark/rt_counter.v spark/rt_gen.vo
+spark/rt_counter.vio: spark/rt_counter.v spark/rt_gen.vio
+spark/rt_gen_consistent.vo spark/rt_gen_consistent.glob spark/rt_gen_consistent.v.beautified: spark/rt_gen_consistent.v spark/eval_rt.vo spark/rt_gen.vo spark/rt_gen_util.vo spark/CpdtTactics.vo
+spark/rt_gen_consistent.vio: spark/rt_gen_consistent.v spark/eval_rt.vio spark/rt_gen.vio spark/rt_gen_util.vio spark/CpdtTactics.vio
+spark/rt_gen_impl_consistent.vo spark/rt_gen_impl_consistent.glob spark/rt_gen_impl_consistent.v.beautified: spark/rt_gen_impl_consistent.v spark/rt_gen_impl.vo
+spark/rt_gen_impl_consistent.vio: spark/rt_gen_impl_consistent.v spark/rt_gen_impl.vio
+spark/rt_gen_impl.vo spark/rt_gen_impl.glob spark/rt_gen_impl.v.beautified: spark/rt_gen_impl.v spark/rt_gen.vo
+spark/rt_gen_impl.vio: spark/rt_gen_impl.v spark/rt_gen.vio
+spark/rt_gen_util.vo spark/rt_gen_util.glob spark/rt_gen_util.v.beautified: spark/rt_gen_util.v spark/CpdtTactics.vo spark/rt_gen.vo
+spark/rt_gen_util.vio: spark/rt_gen_util.v spark/CpdtTactics.vio spark/rt_gen.vio
+spark/rt_gen.vo spark/rt_gen.glob spark/rt_gen.v.beautified: spark/rt_gen.v spark/ast_rt.vo spark/ast_util.vo spark/symboltable.vo
+spark/rt_gen.vio: spark/rt_gen.v spark/ast_rt.vio spark/ast_util.vio spark/symboltable.vio
+spark/rt_opt_compare.vo spark/rt_opt_compare.glob spark/rt_opt_compare.v.beautified: spark/rt_opt_compare.v spark/rt_gen.vo
+spark/rt_opt_compare.vio: spark/rt_opt_compare.v spark/rt_gen.vio
+spark/rt_opt_consistent_util.vo spark/rt_opt_consistent_util.glob spark/rt_opt_consistent_util.v.beautified: spark/rt_opt_consistent_util.v spark/rt_gen.vo spark/rt_opt_util.vo spark/well_typed_util.vo
+spark/rt_opt_consistent_util.vio: spark/rt_opt_consistent_util.v spark/rt_gen.vio spark/rt_opt_util.vio spark/well_typed_util.vio
+spark/rt_opt_consistent.vo spark/rt_opt_consistent.glob spark/rt_opt_consistent.v.beautified: spark/rt_opt_consistent.v spark/rt_opt_consistent_util.vo
+spark/rt_opt_consistent.vio: spark/rt_opt_consistent.v spark/rt_opt_consistent_util.vio
+spark/rt_opt_impl_consistent.vo spark/rt_opt_impl_consistent.glob spark/rt_opt_impl_consistent.v.beautified: spark/rt_opt_impl_consistent.v spark/rt_opt_impl.vo
+spark/rt_opt_impl_consistent.vio: spark/rt_opt_impl_consistent.v spark/rt_opt_impl.vio
+spark/rt_opt_impl.vo spark/rt_opt_impl.glob spark/rt_opt_impl.v.beautified: spark/rt_opt_impl.v spark/rt_opt.vo
+spark/rt_opt_impl.vio: spark/rt_opt_impl.v spark/rt_opt.vio
+spark/rt_opt_util.vo spark/rt_opt_util.glob spark/rt_opt_util.v.beautified: spark/rt_opt_util.v spark/rt_opt.vo
+spark/rt_opt_util.vio: spark/rt_opt_util.v spark/rt_opt.vio
+spark/rt_opt.vo spark/rt_opt.glob spark/rt_opt.v.beautified: spark/rt_opt.v spark/environment.vo spark/rt.vo spark/ast_rt.vo spark/eval_rt.vo spark/rt_opt_ZArith.vo
+spark/rt_opt.vio: spark/rt_opt.v spark/environment.vio spark/rt.vio spark/ast_rt.vio spark/eval_rt.vio spark/rt_opt_ZArith.vio
+spark/rt_opt_ZArith.vo spark/rt_opt_ZArith.glob spark/rt_opt_ZArith.v.beautified: spark/rt_opt_ZArith.v spark/values.vo
+spark/rt_opt_ZArith.vio: spark/rt_opt_ZArith.v spark/values.vio
+spark/rt.vo spark/rt.glob spark/rt.v.beautified: spark/rt.v
+spark/rt.vio: spark/rt.v
+spark/rt_validator.vo spark/rt_validator.glob spark/rt_validator.v.beautified: spark/rt_validator.v spark/rt_gen.vo
+spark/rt_validator.vio: spark/rt_validator.v spark/rt_gen.vio
+spark/symboltable_module.vo spark/symboltable_module.glob spark/symboltable_module.v.beautified: spark/symboltable_module.v spark/environment.vo
+spark/symboltable_module.vio: spark/symboltable_module.v spark/environment.vio
+spark/symboltable.vo spark/symboltable.glob spark/symboltable.v.beautified: spark/symboltable.v spark/symboltable_module.vo spark/ast_rt.vo
+spark/symboltable.vio: spark/symboltable.v spark/symboltable_module.vio spark/ast_rt.vio
+spark/values.vo spark/values.glob spark/values.v.beautified: spark/values.v spark/ast_basics.vo
+spark/values.vio: spark/values.v spark/ast_basics.vio
+spark/well_typed_util.vo spark/well_typed_util.glob spark/well_typed_util.v.beautified: spark/well_typed_util.v spark/rt_gen.vo spark/rt_gen_util.vo spark/rt_opt_util.vo spark/well_typed.vo
+spark/well_typed_util.vio: spark/well_typed_util.v spark/rt_gen.vio spark/rt_gen_util.vio spark/rt_opt_util.vio spark/well_typed.vio
+spark/well_typed.vo spark/well_typed.glob spark/well_typed.v.beautified: spark/well_typed.v spark/eval_rt.vo spark/rt_opt.vo
+spark/well_typed.vio: spark/well_typed.v spark/eval_rt.vio spark/rt_opt.vio
 cfrontend/Ctypes.vo cfrontend/Ctypes.glob cfrontend/Ctypes.v.beautified: cfrontend/Ctypes.v lib/Coqlib.vo lib/Maps.vo common/AST.vo common/Errors.vo $(ARCH)/Archi.vo
 cfrontend/Ctypes.vio: cfrontend/Ctypes.v lib/Coqlib.vio lib/Maps.vio common/AST.vio common/Errors.vio $(ARCH)/Archi.vio
 cfrontend/Cop.vo cfrontend/Cop.glob cfrontend/Cop.v.beautified: cfrontend/Cop.v lib/Coqlib.vo common/AST.vo lib/Integers.vo lib/Floats.vo common/Values.vo common/Memory.vo cfrontend/Ctypes.vo
@@ -288,8 +324,8 @@ cfrontend/Cminorgenproof.vo cfrontend/Cminorgenproof.glob cfrontend/Cminorgenpro
 cfrontend/Cminorgenproof.vio: cfrontend/Cminorgenproof.v lib/Coqlib.vio lib/Intv.vio common/Errors.vio lib/Maps.vio common/AST.vio lib/Integers.vio lib/Floats.vio common/Values.vio common/Memory.vio common/Events.vio common/Globalenvs.vio common/Smallstep.vio common/Switch.vio cfrontend/Csharpminor.vio backend/Cminor.vio cfrontend/Cminorgen.vio
 driver/Compopts.vo driver/Compopts.glob driver/Compopts.v.beautified: driver/Compopts.v
 driver/Compopts.vio: driver/Compopts.v
-driver/Compiler.vo driver/Compiler.glob driver/Compiler.v.beautified: driver/Compiler.v lib/Coqlib.vo common/Errors.vo common/AST.vo common/Smallstep.vo cfrontend/Csyntax.vo cfrontend/Csem.vo cfrontend/Cstrategy.vo cfrontend/Cexec.vo cfrontend/Clight.vo cfrontend/Csharpminor.vo backend/Cminor.vo backend/CminorSel.vo backend/RTL.vo backend/LTL.vo backend/Linear.vo backend/Mach.vo $(ARCH)/Asm.vo cfrontend/Initializers.vo cfrontend/SimplExpr.vo cfrontend/SimplLocals.vo cfrontend/Cshmgen.vo cfrontend/Cminorgen.vo backend/Selection.vo backend/RTLgen.vo backend/Tailcall.vo backend/Inlining.vo backend/Renumber.vo backend/Constprop.vo backend/CSE.vo backend/Deadcode.vo backend/Unusedglob.vo backend/Allocation.vo backend/Tunneling.vo backend/Linearize.vo backend/CleanupLabels.vo backend/Debugvar.vo backend/Stacking.vo $(ARCH)/Asmgen.vo cfrontend/SimplExprproof.vo cfrontend/SimplLocalsproof.vo cfrontend/Cshmgenproof.vo cfrontend/Cminorgenproof.vo backend/Selectionproof.vo backend/RTLgenproof.vo backend/Tailcallproof.vo backend/Inliningproof.vo backend/Renumberproof.vo backend/Constpropproof.vo backend/CSEproof.vo backend/Deadcodeproof.vo backend/Unusedglobproof.vo backend/Allocproof.vo backend/Tunnelingproof.vo backend/Linearizeproof.vo backend/CleanupLabelsproof.vo backend/Debugvarproof.vo backend/Stackingproof.vo $(ARCH)/Asmgenproof.vo driver/Compopts.vo spark/semantics.vo spark/language.vo sparkfrontend/spark2Cminor.vo
-driver/Compiler.vio: driver/Compiler.v lib/Coqlib.vio common/Errors.vio common/AST.vio common/Smallstep.vio cfrontend/Csyntax.vio cfrontend/Csem.vio cfrontend/Cstrategy.vio cfrontend/Cexec.vio cfrontend/Clight.vio cfrontend/Csharpminor.vio backend/Cminor.vio backend/CminorSel.vio backend/RTL.vio backend/LTL.vio backend/Linear.vio backend/Mach.vio $(ARCH)/Asm.vio cfrontend/Initializers.vio cfrontend/SimplExpr.vio cfrontend/SimplLocals.vio cfrontend/Cshmgen.vio cfrontend/Cminorgen.vio backend/Selection.vio backend/RTLgen.vio backend/Tailcall.vio backend/Inlining.vio backend/Renumber.vio backend/Constprop.vio backend/CSE.vio backend/Deadcode.vio backend/Unusedglob.vio backend/Allocation.vio backend/Tunneling.vio backend/Linearize.vio backend/CleanupLabels.vio backend/Debugvar.vio backend/Stacking.vio $(ARCH)/Asmgen.vio cfrontend/SimplExprproof.vio cfrontend/SimplLocalsproof.vio cfrontend/Cshmgenproof.vio cfrontend/Cminorgenproof.vio backend/Selectionproof.vio backend/RTLgenproof.vio backend/Tailcallproof.vio backend/Inliningproof.vio backend/Renumberproof.vio backend/Constpropproof.vio backend/CSEproof.vio backend/Deadcodeproof.vio backend/Unusedglobproof.vio backend/Allocproof.vio backend/Tunnelingproof.vio backend/Linearizeproof.vio backend/CleanupLabelsproof.vio backend/Debugvarproof.vio backend/Stackingproof.vio $(ARCH)/Asmgenproof.vio driver/Compopts.vio spark/semantics.vio spark/language.vio sparkfrontend/spark2Cminor.vio
+driver/Compiler.vo driver/Compiler.glob driver/Compiler.v.beautified: driver/Compiler.v lib/Coqlib.vo common/Errors.vo common/AST.vo common/Smallstep.vo cfrontend/Csyntax.vo cfrontend/Csem.vo cfrontend/Cstrategy.vo cfrontend/Cexec.vo cfrontend/Clight.vo cfrontend/Csharpminor.vo backend/Cminor.vo backend/CminorSel.vo backend/RTL.vo backend/LTL.vo backend/Linear.vo backend/Mach.vo $(ARCH)/Asm.vo cfrontend/Initializers.vo cfrontend/SimplExpr.vo cfrontend/SimplLocals.vo cfrontend/Cshmgen.vo cfrontend/Cminorgen.vo backend/Selection.vo backend/RTLgen.vo backend/Tailcall.vo backend/Inlining.vo backend/Renumber.vo backend/Constprop.vo backend/CSE.vo backend/Deadcode.vo backend/Unusedglob.vo backend/Allocation.vo backend/Tunneling.vo backend/Linearize.vo backend/CleanupLabels.vo backend/Debugvar.vo backend/Stacking.vo $(ARCH)/Asmgen.vo cfrontend/SimplExprproof.vo cfrontend/SimplLocalsproof.vo cfrontend/Cshmgenproof.vo cfrontend/Cminorgenproof.vo backend/Selectionproof.vo backend/RTLgenproof.vo backend/Tailcallproof.vo backend/Inliningproof.vo backend/Renumberproof.vo backend/Constpropproof.vo backend/CSEproof.vo backend/Deadcodeproof.vo backend/Unusedglobproof.vo backend/Allocproof.vo backend/Tunnelingproof.vo backend/Linearizeproof.vo backend/CleanupLabelsproof.vo backend/Debugvarproof.vo backend/Stackingproof.vo $(ARCH)/Asmgenproof.vo driver/Compopts.vo sparkfrontend/spark2Cminor.vo
+driver/Compiler.vio: driver/Compiler.v lib/Coqlib.vio common/Errors.vio common/AST.vio common/Smallstep.vio cfrontend/Csyntax.vio cfrontend/Csem.vio cfrontend/Cstrategy.vio cfrontend/Cexec.vio cfrontend/Clight.vio cfrontend/Csharpminor.vio backend/Cminor.vio backend/CminorSel.vio backend/RTL.vio backend/LTL.vio backend/Linear.vio backend/Mach.vio $(ARCH)/Asm.vio cfrontend/Initializers.vio cfrontend/SimplExpr.vio cfrontend/SimplLocals.vio cfrontend/Cshmgen.vio cfrontend/Cminorgen.vio backend/Selection.vio backend/RTLgen.vio backend/Tailcall.vio backend/Inlining.vio backend/Renumber.vio backend/Constprop.vio backend/CSE.vio backend/Deadcode.vio backend/Unusedglob.vio backend/Allocation.vio backend/Tunneling.vio backend/Linearize.vio backend/CleanupLabels.vio backend/Debugvar.vio backend/Stacking.vio $(ARCH)/Asmgen.vio cfrontend/SimplExprproof.vio cfrontend/SimplLocalsproof.vio cfrontend/Cshmgenproof.vio cfrontend/Cminorgenproof.vio backend/Selectionproof.vio backend/RTLgenproof.vio backend/Tailcallproof.vio backend/Inliningproof.vio backend/Renumberproof.vio backend/Constpropproof.vio backend/CSEproof.vio backend/Deadcodeproof.vio backend/Unusedglobproof.vio backend/Allocproof.vio backend/Tunnelingproof.vio backend/Linearizeproof.vio backend/CleanupLabelsproof.vio backend/Debugvarproof.vio backend/Stackingproof.vio $(ARCH)/Asmgenproof.vio driver/Compopts.vio sparkfrontend/spark2Cminor.vio
 driver/Complements.vo driver/Complements.glob driver/Complements.v.beautified: driver/Complements.v lib/Coqlib.vo common/AST.vo lib/Integers.vo common/Values.vo common/Events.vo common/Globalenvs.vo common/Smallstep.vo common/Behaviors.vo cfrontend/Csyntax.vo cfrontend/Csem.vo cfrontend/Cstrategy.vo cfrontend/Clight.vo backend/Cminor.vo backend/RTL.vo $(ARCH)/Asm.vo driver/Compiler.vo common/Errors.vo
 driver/Complements.vio: driver/Complements.v lib/Coqlib.vio common/AST.vio lib/Integers.vio common/Values.vio common/Events.vio common/Globalenvs.vio common/Smallstep.vio common/Behaviors.vio cfrontend/Csyntax.vio cfrontend/Csem.vio cfrontend/Cstrategy.vio cfrontend/Clight.vio backend/Cminor.vio backend/RTL.vio $(ARCH)/Asm.vio driver/Compiler.vio common/Errors.vio
 flocq/Core/Fcore_Raux.vo flocq/Core/Fcore_Raux.glob flocq/Core/Fcore_Raux.v.beautified: flocq/Core/Fcore_Raux.v flocq/Core/Fcore_Zaux.vo

@@ -21,7 +21,7 @@ THEDIRS=lib common $(ARCH) backend cfrontend driver debug\
 
 RECDIRS=lib common $(ARCH) backend cfrontend driver flocq exportclight cparser
 
-COQINCLUDES=$(foreach d, $(RECDIRS), -R $(d) compcert.$(d)) -R sparkfrontend sparkfrontend -R spark spark
+COQINCLUDES=$(foreach d, $(RECDIRS), -R $(d) compcert.$(d)) -R sparkfrontend compcert.sparkfrontend -R spark spark
 
 CAMLINCLUDES=$(patsubst %,-I %, $(THEDIRS)) -I extraction  -I sparkfrontend -I spark
 
@@ -51,27 +51,46 @@ GPATH=$(DIRS)
 #  spark/LibTactics.v \
 
 SPARK=\
-  spark/more_list.v \
-  spark/more_store.v \
-  spark/symboltable_module.v \
-  spark/environment.v \
-  spark/language_basics.v \
-  spark/language_flagged.v \
-  spark/language_util.v \
-  spark/language.v \
-  spark/symboltable.v \
-  spark/semantics.v \
-  spark/semantics_flagged.v \
-  spark/CpdtTactics.v \
-  spark/checks.v \
-  spark/values.v \
-  sparkfrontend/more_stdlib.v \
-  sparkfrontend/LibHypsNaming.v \
-  sparkfrontend/function_utils.v \
-  sparkfrontend/semantics_properties.v \
-  sparkfrontend/spark2Cminor.v \
-  sparkfrontend/compcert_utils.v \
-  sparkfrontend/spark2cmproofs.v
+spark/ast_basics.v\
+spark/ast_rt.v\
+spark/ast_template.v\
+spark/ast_util.v\
+spark/ast.v\
+spark/CpdtTactics.v\
+spark/environment.v\
+spark/eval_rt.v\
+spark/eval.v\
+sparkfrontend/compcert_utils.v\
+sparkfrontend/essai.v\
+sparkfrontend/function_utils.v\
+sparkfrontend/LibHypsNaming.v\
+sparkfrontend/more_stdlib.v\
+sparkfrontend/semantics_properties.v\
+sparkfrontend/spark2Cminor.v\
+sparkfrontend/spark2cmproofs.v\
+spark/list_util.v\
+spark/rt_counter.v\
+spark/rt_gen_consistent.v\
+spark/rt_gen_impl_consistent.v\
+spark/rt_gen_impl.v\
+spark/rt_gen_util.v\
+spark/rt_gen.v\
+spark/rt_opt_compare.v\
+spark/rt_opt_consistent_util.v\
+spark/rt_opt_consistent.v\
+spark/rt_opt_impl_consistent.v\
+spark/rt_opt_impl.v\
+spark/rt_opt_util.v\
+spark/rt_opt.v\
+spark/rt_opt_ZArith.v\
+spark/rt.v\
+spark/rt_validator.v\
+spark/store_util.v\
+spark/symboltable_module.v\
+spark/symboltable.v\
+spark/values.v\
+spark/well_typed_util.v\
+spark/well_typed.v\
 
 # wellformedness.v propertyProof.v typing.v monad.v  FrameStackGen.v  foo.v language_template.v 
 
