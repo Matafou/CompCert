@@ -61,7 +61,6 @@ spark/environment.v\
 spark/eval_rt.v\
 spark/eval.v\
 sparkfrontend/compcert_utils.v\
-sparkfrontend/essai.v\
 sparkfrontend/function_utils.v\
 sparkfrontend/LibHypsNaming.v\
 sparkfrontend/more_stdlib.v\
