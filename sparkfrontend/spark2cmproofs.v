@@ -4795,14 +4795,37 @@ Proof.
   !intros.
   generalize heq_transl_name; unfold transl_name;!intro.
   split;eauto.
-  - unfold transl_name in heq_transl_name.
-    !!pose proof (me_stack_complete h_match_env).
-    red in h_stk_cmpl_s_CE.
-    specialize (h_stk_cmpl_s_CE x x0 nme_t heq_transl_name).
-    decomp h_stk_cmpl_s_CE.
-    !! pose proof (me_stack_match h_match_env).
-    eapply assignment_preserve_safe_cm_env;eauto.
+  unfold transl_name in heq_transl_name.
+  !!pose proof (me_stack_complete h_match_env).
+  red in h_stk_cmpl_s_CE.
+  specialize (h_stk_cmpl_s_CE x x0 nme_t heq_transl_name).
+  decomp h_stk_cmpl_s_CE.
+  !! pose proof (me_stack_match h_match_env).
+  eapply assignment_preserve_safe_cm_env;eauto.
 Qed.
+
+
+Lemma assignment_preserve_strong_match_env:
+  forall stbl s CE spb ofs locenv g m x x0 nme_t nme_chk nme_t_addr e_v e_t_v s' m',
+    forall h_overflow:(forall n, e_v = Int n -> do_overflow_check n (Normal (Int n))),
+      invariant_compile CE stbl ->
+      strong_match_env stbl s CE (Values.Vptr spb ofs) locenv g m ->
+      transl_name stbl CE (E_Identifier x x0) =: nme_t ->
+      Cminor.eval_expr g (Values.Vptr spb ofs) locenv m nme_t nme_t_addr ->
+      compute_chnk stbl (E_Identifier x x0) = OK nme_chk ->
+      transl_value e_v e_t_v ->
+      storeUpdate stbl s (E_Identifier x x0) e_v (Normal s') ->
+      Mem.storev nme_chk m nme_t_addr e_t_v = Some m' ->
+      strong_match_env stbl s' CE (Values.Vptr spb ofs) locenv g m'.
+Proof.
+  (* Idée. Induction sur le nombre de load. Cas de base: pas de load
+     de chainage, alors alors le store n'a pas d'effet vu du niveau en
+     dessous (strict_invisible depuis en-dessous) ça doit suffir pour
+     conclure -lemma?). Cas pas de base: alors l'opération est
+     équivalente au niveau d'en dessous avec un load de moins --> hyp
+     de rec. *)
+
+Admitted.
 
 (** Visibility of variables.  *)
 
@@ -8390,6 +8413,7 @@ Proof.
         eapply eval_expr_overf;eauto. }
       
       admit. (* TODO strong match instead. *)
+    *
   (* Assignment with satisifed range constraint (Range l u) *)
   - rename x into nme.
     rename st into stbl.
