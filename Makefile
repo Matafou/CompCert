@@ -66,6 +66,7 @@ sparkfrontend/LibHypsNaming.v\
 sparkfrontend/more_stdlib.v\
 sparkfrontend/semantics_properties.v\
 sparkfrontend/spark2Cminor.v\
+sparkfrontend/chained_structure.v\
 sparkfrontend/spark2cmproofs.v\
 spark/list_util.v\
 spark/rt_counter.v\
