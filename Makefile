@@ -40,20 +40,10 @@ CP=cp
 VPATH=$(DIRS) 
 GPATH=$(DIRS)
 
-#  sparkfrontend/spark/checks_comparison.v \
-#  sparkfrontend/spark/checks_generator.v \
-#  sparkfrontend/spark/checks_soundness.v \
-#  sparkfrontend/spark/checks_optimization.v \
-#  sparkfrontend/spark/checks_optimization_soundness.v \
-#  sparkfrontend/spark/well_check_flagged.v \
-#  sparkfrontend/spark/well_typed.v \
-#  spark/util.v \
-#  spark/LibTactics.v \
 
 SPARK=\
 spark/ast_basics.v\
 spark/ast_rt.v\
-spark/ast_template.v\
 spark/ast_util.v\
 spark/ast.v\
 spark/CpdtTactics.v\
