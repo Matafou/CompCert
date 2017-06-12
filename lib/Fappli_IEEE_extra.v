@@ -746,7 +746,9 @@ Proof.
   + apply Rlt_le_trans with 0%R; auto. rewrite <- Ropp_0. apply Ropp_lt_contravar. apply Rlt_0_1.
   + replace 1%R with (Z2R (Zfloor x) + 1)%R. apply Zfloor_ub. rewrite H. simpl. apply Rplus_0_l.
 - rewrite Ztrunc_ceil in H by (apply Rlt_le; auto). split.
-  + apply Ropp_lt_cancel. rewrite Ropp_involutive.
+  + apply Ropp_lt_cancel.
+    change (-1)%R with (-(1))%R.
+    rewrite Ropp_involutive.
     replace 1%R with (Z2R (Zfloor (-x)) + 1)%R. apply Zfloor_ub.
     unfold Zceil in H. replace (Zfloor (-x)) with 0 by omega. simpl. apply Rplus_0_l.
   + apply Rlt_le_trans with 0%R; auto. apply Rle_0_1.
@@ -1236,14 +1238,18 @@ Proof.
     assert (F: Zfloor (/ 2)%R = 0).
     { apply Zfloor_imp.
       split. apply Rlt_le. apply Rinv_0_lt_compat. apply (Z2R_lt 0 2). omega.
-      change (Z2R (0 + 1)) with 1%R. rewrite <- Rinv_1 at 3. apply Rinv_1_lt_contravar. apply Rle_refl. apply (Z2R_lt 1 2). omega.
+      change (Z2R (0 + 1)) with 1%R.
+      Require Import Psatz.
+      nra.
+      (*rewrite <- Rinv_1 at 3. apply Rinv_1_lt_contravar. apply Rle_refl. apply (Z2R_lt 1 2). omega.*)
     }
     rewrite F. change (Z2R 0) with 0%R. rewrite Rminus_0_r. rewrite Rcompare_Eq by auto.
     simpl. unfold F2R; simpl. apply Rmult_0_l.
   }
   apply Rle_antisym.
 - rewrite <- A. apply round_le. apply fexp_correct; auto. apply valid_rnd_round_mode. tauto.
-- rewrite <- (round_0 radix2 fexp (round_mode mode_NE)).
+- change 0%R with R0.
+  rewrite <- (round_0 radix2 fexp (round_mode mode_NE)).
   apply round_le. apply fexp_correct; auto. apply valid_rnd_round_mode. tauto.
 Qed.
 
@@ -1367,7 +1373,10 @@ Theorem Bconv_correct:
      B2FF _ _ (Bconv conv_nan m f) = binary_overflow prec2 emax2 m (Bsign _ _ f).
 Proof.
   intros. destruct f; try discriminate.
-- simpl. rewrite round_0. rewrite Rabs_R0. rewrite Rlt_bool_true. auto.
+- simpl. rewrite round_0.
+  rewrite Rlt_bool_true. auto.
+  change R0 with 0%R.
+  rewrite Rabs_R0.
   apply bpow_gt_0. apply valid_rnd_round_mode.
 - generalize (binary_normalize_correct _ _ _ Hmax2 m (cond_Zopp b (Zpos m0)) e b).
   fold emin2; fold fexp2. simpl. destruct Rlt_bool.
@@ -1394,6 +1403,7 @@ Proof.
   assert (LT: (Rabs (B2R _ _ f) < bpow radix2 emax2)%R).
   {
     destruct f; try discriminate; simpl.
+    change R0 with 0%R.
     rewrite Rabs_R0. apply bpow_gt_0.
     apply Rlt_le_trans with (bpow radix2 emax1).
     rewrite F2R_cond_Zopp. rewrite abs_cond_Ropp. rewrite <- F2R_Zabs. simpl Z.abs.
@@ -1524,6 +1534,7 @@ Proof.
   intros (D & E & F).
   apply B2R_Bsign_inj; auto.
   destruct f; try discriminate; simpl.
+  change R0 with 0%R.
   rewrite Rabs_R0. apply bpow_gt_0.
   rewrite F2R_cond_Zopp. rewrite abs_cond_Ropp. rewrite <- F2R_Zabs. simpl Z.abs.
   eapply bounded_lt_emax; eauto.

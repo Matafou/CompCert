@@ -273,7 +273,9 @@ destruct (ln_beta beta x) as (ex, He). simpl.
 assert (Hx0: x <> R0).
 intros Hx0.
 apply Rle_not_lt with (1 := Hx).
-rewrite Hx0, Rabs_R0.
+rewrite Hx0.
+change R0 with 0%R.
+rewrite Rabs_R0.
 apply bpow_gt_0.
 specialize (He Hx0).
 assert (He': (emin + prec <= ex)%Z).

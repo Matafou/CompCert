@@ -370,8 +370,9 @@ destruct (Rle_or_lt (round beta fexp Zfloor x) 0) as [Hr|Hr].
 rewrite (Rle_antisym _ _ Hr).
 unfold scaled_mantissa.
 rewrite Rmult_0_l.
-change R0 with (Z2R 0).
+change 0%R with (Z2R 0).
 now rewrite (Ztrunc_Z2R 0).
+change 0%R with R0.
 rewrite <- (round_0 beta fexp Zfloor).
 apply round_le...
 now apply Rlt_le.
@@ -511,10 +512,12 @@ unfold Rabs at 2.
 destruct (Rcase_abs x) as [Hx|Hx].
 rewrite round_NE_opp.
 apply Rabs_left1.
+change 0%R with R0.
 rewrite <- (round_0 beta fexp ZnearestE).
 apply round_le...
 now apply Rlt_le.
 apply Rabs_pos_eq.
+change 0%R with R0.
 rewrite <- (round_0 beta fexp ZnearestE).
 apply round_le...
 now apply Rge_le.

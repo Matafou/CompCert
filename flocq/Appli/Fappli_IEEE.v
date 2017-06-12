@@ -606,7 +606,7 @@ Theorem abs_B2R_lt_emax :
   forall x,
   (Rabs (B2R x) < bpow radix2 emax)%R.
 Proof.
-intros [sx|sx|sx plx|sx mx ex Hx] ; simpl ; try ( rewrite Rabs_R0 ; apply bpow_gt_0 ).
+intros [sx|sx|sx plx|sx mx ex Hx] ; simpl; change R0 with 0%R; try ( rewrite Rabs_R0 ; apply bpow_gt_0 ).
 rewrite <- F2R_Zabs, abs_cond_Zopp.
 now apply bounded_lt_emax.
 Qed.
@@ -1132,8 +1132,12 @@ Theorem Bmult_correct :
   else
     B2FF (Bmult mult_nan m x y) = binary_overflow m (xorb (Bsign x) (Bsign y)).
 Proof.
-intros mult_nan m [sx|sx|sx plx|sx mx ex Hx] [sy|sy|sy ply|sy my ey Hy] ;
-  try ( rewrite ?Rmult_0_r, ?Rmult_0_l, round_0, Rabs_R0, Rlt_bool_true ; [ now repeat constructor | apply bpow_gt_0 | now auto with typeclass_instances ] ).
+intros mult_nan m [sx|sx|sx plx|sx mx ex Hx] [sy|sy|sy ply|sy my ey Hy];cbn;
+  try (change R0 with 0%R; rewrite ?Rmult_0_r, ?Rmult_0_l;
+       change R0 with 0%R; rewrite round_0;
+       change R0 with 0%R;[ rewrite Rabs_R0 | ];
+       change R0 with 0%R;[ rewrite Rlt_bool_true |];
+       change R0 with 0%R;change R0 with 0%R;[ now repeat constructor | apply bpow_gt_0 | now auto with typeclass_instances ]).
 simpl.
 case Bmult_correct_aux.
 intros H1.
@@ -1319,10 +1323,15 @@ Theorem binary_normalize_correct :
 Proof with auto with typeclass_instances.
 intros m mx ez szero.
 destruct mx as [|mz|mz] ; simpl.
-rewrite F2R_0, round_0, Rabs_R0, Rlt_bool_true...
+rewrite F2R_0.
+change R0 with 0%R.
+rewrite round_0...
+change R0 with 0%R.
+rewrite Rabs_R0, Rlt_bool_true...
 split... split...
 rewrite Rcompare_Eq...
 apply bpow_gt_0.
+
 (* . mz > 0 *)
 generalize (binary_round_correct m false mz ez).
 simpl.
@@ -1403,7 +1412,12 @@ Theorem Bplus_correct :
 Proof with auto with typeclass_instances.
 intros plus_nan m [sx|sx| |sx mx ex Hx] [sy|sy| |sy my ey Hy] Fx Fy ; try easy.
 (* *)
-rewrite Rplus_0_r, round_0, Rabs_R0, Rlt_bool_true...
+change R0 with 0%R.
+rewrite Rplus_0_r...
+change R0 with 0%R.
+rewrite round_0...
+change R0 with 0%R.
+rewrite Rabs_R0, Rlt_bool_true...
 simpl.
 rewrite Rcompare_Eq by auto.
 destruct sx, sy; try easy; now case m.
@@ -1727,7 +1741,11 @@ intros div_nan m x [sy|sy|sy ply|sy my ey Hy] Zy ; try now elim Zy.
 revert x.
 unfold Rdiv.
 intros [sx|sx|sx plx|sx mx ex Hx] ;
-  try ( rewrite Rmult_0_l, round_0, Rabs_R0, Rlt_bool_true ; [ now repeat constructor | apply bpow_gt_0 | auto with typeclass_instances ] ).
+  try ( change R0 with 0%R;rewrite Rmult_0_l;
+        change R0 with 0%R; rewrite round_0; 
+        change R0 with 0%R; [ rewrite Rabs_R0 | ];
+        change R0 with 0%R; [rewrite Rlt_bool_true | ];
+        change R0 with 0%R; [ now repeat constructor | apply bpow_gt_0 | auto with typeclass_instances ] ).
 simpl.
 case Bdiv_correct_aux.
 intros H1.
@@ -1798,6 +1816,7 @@ rewrite Hr.
 assert (Heps': (Rabs eps < 1)%R).
 apply Rlt_le_trans with (1 := Heps).
 fold (bpow radix2 0).
+change 1%R with (bpow radix2 0).
 apply bpow_le.
 generalize (prec_gt_0 prec).
 clear ; omega.
@@ -1895,7 +1914,7 @@ Theorem Bsqrt_correct :
   is_finite (Bsqrt sqrt_nan m x) = match x with B754_zero _ => true | B754_finite false _ _ _ => true | _ => false end /\
   (is_nan (Bsqrt sqrt_nan m x) = false -> Bsign (Bsqrt sqrt_nan m x) = Bsign x).
 Proof.
-intros sqrt_nan m [sx|[|]| |sx mx ex Hx] ; try ( now simpl ; rewrite sqrt_0, round_0 ; intuition auto with typeclass_instances ).
+  intros sqrt_nan m [sx|[|]| |sx mx ex Hx] ; try ( now simpl ; change R0 with 0%R; rewrite sqrt_0;change R0 with 0%R; rewrite  round_0 ; intuition auto with typeclass_instances ).
 simpl.
 case Bsqrt_correct_aux.
 intros H1 (H2, (H3, H4)).

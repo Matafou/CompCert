@@ -199,6 +199,7 @@ Theorem F2R_ge_0_compat :
   (0 <= F2R f)%R.
 Proof.
 intros f H.
+replace 0%R with R0;auto.
 rewrite <- F2R_0 with (Fexp f).
 now apply F2R_le_compat.
 Qed.
@@ -209,6 +210,7 @@ Theorem F2R_le_0_compat :
   (F2R f <= 0)%R.
 Proof.
 intros f H.
+replace 0%R with R0;auto.
 rewrite <- F2R_0 with (Fexp f).
 now apply F2R_le_compat.
 Qed.
@@ -219,6 +221,7 @@ Theorem F2R_gt_0_compat :
   (0 < F2R f)%R.
 Proof.
 intros f H.
+replace 0%R with R0;auto.
 rewrite <- F2R_0 with (Fexp f).
 now apply F2R_lt_compat.
 Qed.
@@ -229,6 +232,7 @@ Theorem F2R_lt_0_compat :
   (F2R f < 0)%R.
 Proof.
 intros f H.
+replace 0%R with R0;auto.
 rewrite <- F2R_0 with (Fexp f).
 now apply F2R_lt_compat.
 Qed.

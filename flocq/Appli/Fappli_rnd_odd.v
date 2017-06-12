@@ -277,6 +277,7 @@ apply trans_eq with (negb (Zeven (Fnum
   (Float beta  (Zfloor (scaled_mantissa beta fexp x)) (cexp x))))).
 2: reflexivity.
 case (Rle_lt_or_eq_dec 0 (round beta fexp Zfloor x)).
+change 0%R with R0.
 rewrite <- round_0 with beta fexp Zfloor...
 apply round_le...
 now left.
@@ -334,6 +335,7 @@ apply Rgt_not_eq, bpow_gt_0.
 (* . *)
 intros Y.
 case (Rle_lt_or_eq_dec 0 (round beta fexp Zfloor x)).
+change 0%R with R0.
 rewrite <- round_0 with beta fexp Zfloor...
 apply round_le...
 now left.
@@ -653,7 +655,7 @@ apply trans_eq with m.
 unfold m, Rdiv; ring.
 rewrite H; field.
 auto with real.
-apply Rgt_not_eq, Rlt_gt; auto with real.
+(* apply Rgt_not_eq, Rlt_gt; auto with real. *)
 unfold m; rewrite <- H0; field.
 Qed.
 
@@ -684,11 +686,14 @@ apply Rlt_le_trans with (bpow (fexp e)*1)%R.
 2: right; ring.
 unfold Rdiv; apply Rmult_lt_compat_l.
 apply bpow_gt_0.
-rewrite <- Rinv_1 at 3.
-apply Rinv_lt; auto with real.
+Require Import Psatz.
+nra.
+(* rewrite <- Rinv_1 at 3. *)
+(* apply Rinv_lt; auto with real. *)
 now apply He, Rgt_not_eq.
 apply exp_small_round_0_pos with beta (Zfloor) x...
 now apply He, Rgt_not_eq.
+change R0 with 0%R.
 now rewrite <- d_eq, Y.
 now left.
 Qed.
@@ -774,6 +779,7 @@ rewrite Rabs_right in He.
 assert (e <= fexp e)%Z.
 apply exp_small_round_0_pos with beta (Zfloor) x...
 now apply He, Rgt_not_eq.
+change R0 with 0%R;
 now rewrite <- d_eq, Y.
 rewrite u_eq, round_UP_small_pos with (ex:=e); trivial.
 2: now apply He, Rgt_not_eq.

@@ -183,6 +183,7 @@ destruct Hxy as [Hxy|Hxy].
 unfold f.
 rewrite Hxy.
 rewrite round_0...
+change R0 with 0%R.
 ring_simplify (0 - 0)%R.
 apply generic_format_0.
 destruct (mult_error_FLX_aux beta prec rnd x y) as ((m,e),(H1,(H2,H3))).

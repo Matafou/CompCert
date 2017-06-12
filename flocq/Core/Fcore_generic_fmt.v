@@ -368,7 +368,9 @@ Theorem scaled_mantissa_small :
 Proof.
 intros x ex Ex He.
 destruct (Req_dec x 0) as [Zx|Zx].
-rewrite Zx, scaled_mantissa_0, Rabs_R0.
+rewrite Zx, scaled_mantissa_0.
+replace  R0 with 0%R;auto.
+rewrite Rabs_R0.
 now apply (Z2R_lt 0 1).
 rewrite <- scaled_mantissa_abs.
 unfold scaled_mantissa.
@@ -391,7 +393,9 @@ Theorem abs_scaled_mantissa_lt_bpow :
 Proof.
 intros x.
 destruct (Req_dec x 0) as [Zx|Zx].
-rewrite Zx, scaled_mantissa_0, Rabs_R0.
+rewrite Zx, scaled_mantissa_0.
+replace  R0 with 0%R;auto.
+rewrite Rabs_R0.
 apply bpow_gt_0.
 apply Rlt_le_trans with (1 := bpow_ln_beta_gt beta _).
 apply bpow_le.
@@ -700,6 +704,7 @@ Theorem round_0 :
 Proof.
 unfold round, scaled_mantissa.
 rewrite Rmult_0_l.
+replace 0%R with R0;auto.
 fold (Z2R 0).
 rewrite Zrnd_Z2R.
 apply F2R_0.
@@ -975,6 +980,7 @@ apply F2R_le_0_compat. simpl.
 rewrite <- (Zrnd_Z2R rnd 0).
 apply Zrnd_le...
 simpl.
+replace  R0 with 0%R;auto.
 rewrite <- (Rmult_0_l (bpow (- fexp (ln_beta beta x)))).
 apply Rmult_le_compat_r.
 apply bpow_ge_0.
@@ -1025,6 +1031,7 @@ destruct (Rle_or_lt 0 x) as [Hx|Hx].
 (* . *)
 rewrite 2!Rabs_pos_eq.
 now apply HP.
+replace 0%R with R0;auto.
 rewrite <- (round_0 rnd).
 now apply round_le.
 exact Hx.
@@ -1038,6 +1045,7 @@ apply HP...
 rewrite <- Ropp_0.
 apply Ropp_le_contravar.
 now apply Rlt_le.
+replace 0%R with R0;auto.
 rewrite <- (round_0 rnd).
 apply round_le...
 now apply Rlt_le.
@@ -1147,10 +1155,12 @@ unfold Rabs at 2.
 destruct (Rcase_abs x) as [Hx|Hx].
 rewrite round_ZR_opp.
 apply Rabs_left1.
+replace 0%R with R0;auto.
 rewrite <- (round_0 Ztrunc).
 apply round_le...
 now apply Rlt_le.
 apply Rabs_pos_eq.
+replace 0%R with R0;auto.
 rewrite <- (round_0 Ztrunc).
 apply round_le...
 now apply Rge_le.
@@ -1176,10 +1186,12 @@ unfold Rabs at 2.
 destruct (Rcase_abs x) as [Hx|Hx].
 rewrite round_AW_opp.
 apply Rabs_left1.
+replace 0%R with R0;auto.
 rewrite <- (round_0 Zaway).
 apply round_le...
 now apply Rlt_le.
 apply Rabs_pos_eq.
+replace 0%R with R0;auto.
 rewrite <- (round_0 Zaway).
 apply round_le...
 now apply Rge_le.
@@ -1216,6 +1228,7 @@ rewrite <- (Rmult_0_l (bpow (- canonic_exp x))).
 apply Rmult_le_compat_r with (2 := Hx).
 apply bpow_ge_0.
 rewrite <- H.
+replace 0%R with R0;auto.
 change R0 with (Z2R 0).
 now rewrite Zfloor_Z2R, Zceil_Z2R.
 Qed.
@@ -1251,6 +1264,7 @@ rewrite <- (Rmult_0_l (bpow (- canonic_exp x))).
 apply Rmult_le_compat_r with (2 := Hx).
 apply bpow_ge_0.
 rewrite <- H.
+replace 0%R with R0;auto.
 change R0 with (Z2R 0).
 now rewrite Zfloor_Z2R, Zceil_Z2R.
 Qed.
@@ -1847,8 +1861,8 @@ rewrite Z2R_plus.
 simpl.
 apply Ropp_lt_cancel.
 apply Rplus_lt_reg_l with R1.
-replace (1 + -/2)%R with (/2)%R by field.
-now replace (1 + - (Z2R (Zfloor x) + 1 - x))%R with (x - Z2R (Zfloor x))%R by ring.
+replace (R1 + -/2)%R with (/2)%R by field.
+now replace (R1 + - (Z2R (Zfloor x) + 1 - x))%R with (x - Z2R (Zfloor x))%R by ring.
 apply Rlt_not_eq.
 apply Rplus_lt_reg_l with (- Z2R (Zfloor x))%R.
 apply Rlt_trans with (/2)%R.
@@ -1905,7 +1919,7 @@ rewrite Z2R_abs, Z2R_minus.
 replace (Z2R (Znearest x) - Z2R n)%R with (- (x - Z2R (Znearest x)) + (x - Z2R n))%R by ring.
 apply Rle_lt_trans with (1 := Rabs_triang _ _).
 simpl.
-replace R1 with (/2 + /2)%R by field.
+replace 1%R with (/2 + /2)%R by field.
 apply Rplus_le_lt_compat with (2 := Hd).
 rewrite Rabs_Ropp.
 apply Znearest_N.
@@ -2017,9 +2031,12 @@ apply (Rmult_eq_reg_r (bpow (- fexp (ln_beta beta x))));
   [|now apply Rgt_not_eq; apply bpow_gt_0].
 rewrite Rmult_0_l, Rmult_assoc, <- bpow_plus.
 replace (_ + - _)%Z with 0%Z by ring; simpl; rewrite Rmult_1_r.
-change 0%R with (Z2R 0); apply f_equal.
+change 0%R with (Z2R 0).
+apply f_equal.
 apply Znearest_imp.
-simpl; unfold Rminus; rewrite Ropp_0; rewrite Rplus_0_r.
+simpl.
+change R0 with 0%R.
+unfold Rminus;rewrite Ropp_0; rewrite Rplus_0_r.
 assert (H : (x >= 0)%R).
 { apply Rle_ge; apply Rle_trans with (bpow (ex - 1)); [|exact (proj1 Hex)].
   now apply bpow_ge_0. }
@@ -2091,6 +2108,7 @@ apply lt_Z2R.
 apply Rle_lt_trans with (scaled_mantissa x).
 apply Zfloor_lb.
 simpl.
+change R0 with 0%R.
 rewrite <- (Rmult_0_l (bpow (- canonic_exp x))).
 apply Rmult_lt_compat_r with (2 := Hx).
 apply bpow_gt_0.

@@ -229,10 +229,13 @@ rewrite Rplus_comm.
 apply round_plus_eq_zero_aux ; try apply generic_format_opp...
 now apply Zlt_le_weak.
 apply Rlt_le.
-now apply Ropp_lt_cancel.
+Require Import Psatz.
+nra.
+(* now apply Ropp_lt_cancel. *)
 rewrite <- (Ropp_involutive (round _ _ _ _)).
 rewrite Hxy.
-apply Ropp_involutive.
+change R0 with 0%R.
+nra.
 Qed.
 
 End Fprop_plus_zero.

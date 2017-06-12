@@ -103,7 +103,7 @@ apply Rlt_le_trans with (Rabs x * 1)%R.
 apply Rmult_lt_compat_l.
 now apply Rabs_pos_lt.
 apply Rlt_le_trans with (1 := Heps1).
-change R1 with (bpow 0).
+change 1%R with (bpow 0).
 apply bpow_le.
 generalize (prec_gt_0 prec).
 clear ; omega.
@@ -191,7 +191,10 @@ apply Rsqr_le_abs_1.
 apply Rle_trans with (1 := Rabs_triang _ _).
 rewrite Rabs_R1.
 apply Rplus_le_reg_l with (-1)%R.
-rewrite <- Rplus_assoc, Rplus_opp_l, Rplus_0_l.
+rewrite <- Rplus_assoc.
+change (-1)%R with (-(1))%R.
+rewrite Rplus_opp_l.
+rewrite Rplus_0_l.
 apply Rle_trans with (1 := Heps1).
 rewrite Rabs_pos_eq.
 apply Rmult_le_reg_l with 2%R.
@@ -200,6 +203,7 @@ rewrite <- Rmult_assoc, Rinv_r, Rmult_1_l.
 apply Rle_trans with (bpow (-1)).
 apply bpow_le.
 omega.
+change (-(1))%R with (-1)%R.
 replace (2 * (-1 + 5 / 4))%R with (/2)%R by field.
 apply Rinv_le.
 now apply (Z2R_lt 0 2).
@@ -271,9 +275,10 @@ apply a.
 rewrite <- Hr1; auto.
 (* . *)
 apply Rlt_le_trans with (bpow (prec + Fexp fr)+ Rabs (sqrt x))%R.
-now apply Rplus_lt_compat_r.
+{ now apply Rplus_lt_compat_r. }
 (* . *)
-rewrite Rmult_plus_distr_r, Rmult_1_l.
+rewrite double.
+(* rewrite Rmult_plus_distr_r, Rmult_1_l. *)
 apply Rplus_le_compat_l.
 assert (sqrt x <> 0)%R.
 apply Rgt_not_eq.

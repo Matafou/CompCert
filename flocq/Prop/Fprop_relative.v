@@ -46,6 +46,7 @@ destruct (Req_dec x 0) as [Hx0|Hx0].
 (* *)
 exists R0.
 split.
+change R0 with 0%R.
 now rewrite Rabs_R0.
 rewrite Hx0, Rmult_0_l.
 apply round_0...
@@ -73,6 +74,7 @@ destruct (Req_dec x 0) as [Hx0|Hx0].
 (* *)
 exists R0.
 split.
+change R0 with 0%R.
 now rewrite Rabs_R0.
 rewrite Hx0, Rmult_0_l.
 apply round_0...
@@ -373,6 +375,7 @@ destruct (Req_dec x 0) as [Hx|Hx].
 (* . *)
 rewrite Hx, round_0...
 unfold Rminus.
+change R0 with 0%R.
 rewrite Rplus_0_l, Rabs_Ropp, Rabs_R0.
 rewrite Rmult_0_r.
 apply Rle_refl.
@@ -651,8 +654,8 @@ destruct (Rtotal_order x 0) as [Nx|[Zx|Px]].
     rewrite Rmult_0_r, Rinv_r; [exact Rle_0_1|].
     apply Rgt_not_eq, Rlt_gt, Rlt_0_2. }
   exists R0; exists R0; rewrite Zx; split; [|split; [|split]].
-  { now rewrite Rabs_R0; apply Rmult_le_pos; [|apply bpow_ge_0]. }
-  { now rewrite Rabs_R0; apply Rmult_le_pos; [|apply bpow_ge_0]. }
+  { change R0 with 0%R. now rewrite Rabs_R0; apply Rmult_le_pos; [|apply bpow_ge_0]. }
+  { change R0 with 0%R. now rewrite Rabs_R0; apply Rmult_le_pos; [|apply bpow_ge_0]. }
   { now rewrite Rmult_0_l. }
   now rewrite Rmult_0_l, Rplus_0_l, round_0; [|apply valid_rnd_N]. }
 now apply error_N_FLT_aux.
@@ -762,6 +765,7 @@ destruct (Req_dec x 0) as [Hx|Hx].
 (* . *)
 rewrite Hx, round_0...
 unfold Rminus.
+change R0 with 0%R.
 rewrite Rplus_0_l, Rabs_Ropp, Rabs_R0.
 rewrite Rmult_0_r.
 apply Rle_refl.

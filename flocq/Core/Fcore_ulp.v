@@ -1958,7 +1958,9 @@ case (Req_dec (round beta fexp (Znearest choice) x) 0); intros Hfx.
 case (Req_dec x 0); intros Hx.
 apply Rle_trans with (1:=error_le_half_ulp _ _).
 rewrite Hx, round_0...
-right; ring.
+right.
+change R0 with 0%R.
+ring.
 generalize (error_le_half_ulp choice x).
 rewrite Hfx.
 unfold Rminus; rewrite Rplus_0_l, Rabs_Ropp.

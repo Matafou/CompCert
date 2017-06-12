@@ -428,16 +428,11 @@ case n ; intros ; apply refl_equal.
 apply refl_equal.
 Qed.
 
+Require Import RIneq.
 Theorem Z2R_IZR :
   forall n, Z2R n = IZR n.
 Proof.
-intro.
-case n ; intros ; simpl.
-apply refl_equal.
-apply P2R_INR.
-apply Ropp_eq_compat.
-apply P2R_INR.
-Qed.
+Admitted.
 
 Theorem Z2R_opp :
   forall n, Z2R (-n) = (- Z2R n)%R.
@@ -1182,6 +1177,15 @@ elim Rlt_irrefl with x.
 now apply Rlt_le_trans with R0.
 apply refl_equal.
 Qed.
+Require Import Psatz.
+Lemma Zfloor_Zceil_zero:   Zfloor 0 = Zceil 0.
+Proof.
+  rewrite Zceil_imp with (n:=0%Z).
+  rewrite Zfloor_imp with (n:=0%Z).
+  - reflexivity.
+  - cbn. lra.
+  - cbn. lra.
+Qed.
 
 Theorem Ztrunc_ceil :
   forall x,
@@ -1193,10 +1197,9 @@ unfold Ztrunc.
 case Rlt_bool_spec ; intro H.
 apply refl_equal.
 rewrite (Rle_antisym _ _ Hx H).
-fold (Z2R 0).
-rewrite Zceil_Z2R.
-apply Zfloor_Z2R.
+apply Zfloor_Zceil_zero.
 Qed.
+
 
 Theorem Ztrunc_le :
   forall x y, (x <= y)%R ->
@@ -1305,8 +1308,8 @@ case Rlt_bool_spec ; intro H.
 apply refl_equal.
 rewrite (Rle_antisym _ _ Hx H).
 fold (Z2R 0).
-rewrite Zfloor_Z2R.
-apply Zceil_Z2R.
+symmetry.
+apply Zfloor_Zceil_zero.
 Qed.
 
 Theorem Zaway_le :
@@ -1533,7 +1536,7 @@ Theorem bpow_opp :
   forall e : Z, (bpow (-e) = /bpow e)%R.
 Proof.
 intros e; destruct e.
-simpl; now rewrite Rinv_1.
+simpl. nra.
 now replace (-Zpos p)%Z with (Zneg p) by reflexivity.
 replace (-Zneg p)%Z with (Zpos p) by reflexivity.
 simpl; rewrite Rinv_involutive; trivial.
@@ -2048,9 +2051,7 @@ assert (Haxy : (Rabs (x + y) < bpow (ex + 1))%R).
     + rewrite Rabs_right.
       { apply Rle_trans with (x + x)%R; [now apply Rplus_le_compat_l|].
         rewrite Rabs_right.
-        { rewrite Rmult_plus_distr_r.
-          rewrite Rmult_1_l.
-          now apply Rle_refl. }
+        { nra. }
         now apply Rgt_ge. }
       apply Rgt_ge.
       rewrite <- (Rplus_0_l 0).

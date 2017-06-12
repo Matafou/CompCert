@@ -116,6 +116,8 @@ apply Rlt_le.
 now apply Rnot_le_lt.
 Qed.
 
+Require Import Psatz.
+
 Lemma sterbenz_aux :
   forall x y, format x -> format y ->
   (y <= x <= 2 * y)%R ->
@@ -124,25 +126,25 @@ Proof.
 intros x y Hx Hy (Hxy1, Hxy2).
 unfold Rminus.
 apply generic_format_plus_weak.
-exact Hx.
-now apply generic_format_opp.
-rewrite Rabs_pos_eq.
-rewrite Rabs_Ropp.
-rewrite Rmin_comm.
-assert (Hy0: (0 <= y)%R).
-apply Rplus_le_reg_r with y.
-apply Rle_trans with x.
-now rewrite Rplus_0_l.
-now rewrite Rmult_plus_distr_r, Rmult_1_l in Hxy2.
-rewrite Rabs_pos_eq with (1 := Hy0).
-rewrite Rabs_pos_eq.
-unfold Rmin.
-destruct (Rle_dec y x) as [Hyx|Hyx].
-apply Rplus_le_reg_r with y.
-now ring_simplify.
-now elim Hyx.
-now apply Rle_trans with y.
-now apply Rle_0_minus.
+- exact Hx.
+- now apply generic_format_opp.
+- rewrite Rabs_pos_eq.
+  + rewrite Rabs_Ropp.
+    rewrite Rmin_comm.
+    assert (Hy0: (0 <= y)%R).
+    * apply Rplus_le_reg_r with y.
+      apply Rle_trans with x.
+      -- now rewrite Rplus_0_l.
+      -- nra.
+    * rewrite Rabs_pos_eq with (1 := Hy0).
+      rewrite Rabs_pos_eq.
+      ++ unfold Rmin.
+         destruct (Rle_dec y x) as [Hyx|Hyx].
+         ** apply Rplus_le_reg_r with y.
+            now ring_simplify.
+         ** now elim Hyx.
+      ++ now apply Rle_trans with y.
+  + now apply Rle_0_minus.
 Qed.
 
 Theorem sterbenz :
