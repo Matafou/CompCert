@@ -35,7 +35,7 @@
   system. *)
 
 Require Recdef.
-Require Import Zwf.
+Require Import Zwf FunInd.
 Require Import Coqlib.
 Require Import Errors.
 Require Import Maps.

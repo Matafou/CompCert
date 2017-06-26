@@ -56,6 +56,7 @@ Require Import Relations.
 Require Import Axioms.
 Require Import Coqlib.
 Require Recdef.
+Require Import FunInd.
 
 Section PARMOV.
 

@@ -15,6 +15,7 @@
 
 (** Definitions and theorems about semi-open integer intervals *)
 
+Require Import FunInd.
 Require Import Coqlib.
 Require Import Zwf.
 Require Coq.Program.Wf.
