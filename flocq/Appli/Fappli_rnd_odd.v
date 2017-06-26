@@ -654,9 +654,10 @@ apply Rplus_eq_reg_l with (/2*F2R u)%R.
 apply trans_eq with m.
 unfold m, Rdiv; ring.
 rewrite H; field.
-auto with real.
+Require Import Psatz.
+lra.
 (* apply Rgt_not_eq, Rlt_gt; auto with real. *)
-unfold m; rewrite <- H0; field.
+unfold m in *; rewrite <- H0; field.
 Qed.
 
 
